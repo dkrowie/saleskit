@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Blend AI - ROI & Cost Savings Calculator</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #0f0f12; color: #e4e4e7; min-height: 100vh; padding: 40px 20px; }
+  .container { max-width: 720px; margin: 0 auto; }
+  h1 { font-size: 28px; font-weight: 700; margin-bottom: 6px; color: #fff; }
+  .subtitle { color: #71717a; font-size: 14px; margin-bottom: 36px; }
+  .card { background: #18181b; border: 1px solid #27272a; border-radius: 12px; padding: 28px; margin-bottom: 20px; }
+  .card h2 { font-size: 16px; font-weight: 600; color: #a1a1aa; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 20px; }
+  .field { margin-bottom: 20px; }
+  .field:last-child { margin-bottom: 0; }
+  label { display: block; font-size: 14px; color: #a1a1aa; margin-bottom: 6px; }
+  input[type="number"], select { width: 100%; padding: 12px 14px; background: #09090b; border: 1px solid #27272a; border-radius: 8px; color: #fff; font-size: 16px; outline: none; transition: border-color 0.2s; }
+  input[type="number"]:focus, select:focus { border-color: #6366f1; }
+  input[type="number"]::placeholder { color: #3f3f46; }
+  .row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+  .results { background: linear-gradient(135deg, #1e1b4b, #172554); border: 1px solid #312e81; }
+  .results h2 { color: #818cf8; }
+  .result-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+  .result-item { background: rgba(0,0,0,0.25); border-radius: 8px; padding: 16px; }
+  .result-item.highlight { grid-column: 1 / -1; background: rgba(99, 102, 241, 0.15); border: 1px solid rgba(99, 102, 241, 0.3); }
+  .result-label { font-size: 12px; color: #818cf8; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 4px; }
+  .result-value { font-size: 24px; font-weight: 700; color: #fff; }
+  .result-value.green { color: #34d399; }
+  .result-value.red { color: #f87171; }
+  .result-sub { font-size: 12px; color: #71717a; margin-top: 2px; }
+  .breakdown { margin-top: 20px; border-top: 1px solid rgba(99,102,241,0.2); padding-top: 16px; }
+  .breakdown-row { display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid rgba(255,255,255,0.05); font-size: 14px; }
+  .breakdown-row:last-child { border-bottom: none; }
+  .breakdown-row .label { color: #a1a1aa; }
+  .breakdown-row .value { color: #e4e4e7; font-weight: 500; }
+  .note { font-size: 12px; color: #52525b; margin-top: 16px; line-height: 1.5; }
+  .toggle-row { display: flex; align-items: center; gap: 10px; margin-bottom: 20px; }
+  .toggle-row label { margin-bottom: 0; cursor: pointer; }
+  .toggle { position: relative; width: 44px; height: 24px; background: #27272a; border-radius: 12px; cursor: pointer; transition: background 0.2s; flex-shrink: 0; }
+  .toggle.active { background: #6366f1; }
+  .toggle::after { content: ''; position: absolute; top: 2px; left: 2px; width: 20px; height: 20px; background: #fff; border-radius: 50%; transition: transform 0.2s; }
+  .toggle.active::after { transform: translateX(20px); }
+  .currency-symbol { font-size: 14px; color: #71717a; }
+</style>
+</head>
+<body>
+<div class="container">
+  <h1>Blend AI - Cost Savings Calculator</h1>
+  <p class="subtitle">Compare your current ad management costs against Blend's pricing</p>
+
+  <div class="card">
+    <h2>Your Setup</h2>
+    <div class="row">
+      <div class="field">
+        <label>Currency</label>
+        <select id="currency" onchange="calc()">
+          <option value="USD">USD ($)</option>
+          <option value="AUD">AUD (A$)</option>
+          <option value="GBP">GBP (£)</option>
+          <option value="EUR">EUR (€)</option>
+          <option value="NZD">NZD (NZ$)</option>
+          <option value="CAD">CAD (C$)</option>
+        </select>
+      </div>
+      <div class="field">
+        <label>Monthly Ad Spend</label>
+        <input type="number" id="adSpend" placeholder="e.g. 25000" value="25000" oninput="calc()">
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>Current Agency / Management Costs</h2>
+    <div class="field">
+      <label>How is your agency charging you?</label>
+      <select id="agencyModel" onchange="toggleAgency(); calc()">
+        <option value="percent">Percentage of ad spend</option>
+        <option value="flat">Flat monthly retainer</option>
+        <option value="both">Retainer + percentage</option>
+        <option value="none">No agency (managing in-house)</option>
+      </select>
+    </div>
+    <div class="row" id="agencyFields">
+      <div class="field" id="agencyPctField">
+        <label>Agency fee (%)</label>
+        <input type="number" id="agencyPct" placeholder="e.g. 15" value="15" oninput="calc()">
+      </div>
+      <div class="field" id="agencyFlatField">
+        <label>Monthly retainer</label>
+        <input type="number" id="agencyFlat" placeholder="e.g. 2000" value="0" oninput="calc()">
+      </div>
+    </div>
+    <div class="toggle-row" id="inHouseRow">
+      <div class="toggle" id="inHouseToggle" onclick="this.classList.toggle('active'); calc()"></div>
+      <label onclick="document.getElementById('inHouseToggle').classList.toggle('active'); calc()">Include in-house time cost?</label>
+    </div>
+    <div class="field" id="inHouseField" style="display:none;">
+      <label>Estimated monthly cost of in-house ad management (hours x rate)</label>
+      <input type="number" id="inHouseCost" placeholder="e.g. 1500" value="0" oninput="calc()">
+    </div>
+  </div>
+
+  <div class="card results" id="resultsCard">
+    <h2>Results</h2>
+    <div class="result-grid">
+      <div class="result-item">
+        <div class="result-label">Current Monthly Cost</div>
+        <div class="result-value" id="currentCost">-</div>
+        <div class="result-sub" id="currentSub"></div>
+      </div>
+      <div class="result-item">
+        <div class="result-label">Blend Monthly Cost</div>
+        <div class="result-value" id="blendCost">-</div>
+        <div class="result-sub" id="blendSub"></div>
+      </div>
+      <div class="result-item highlight">
+        <div class="result-label">Monthly Savings with Blend</div>
+        <div class="result-value green" id="monthlySavings">-</div>
+        <div class="result-sub" id="savingsPct"></div>
+      </div>
+      <div class="result-item">
+        <div class="result-label">Annual Savings</div>
+        <div class="result-value green" id="annualSavings">-</div>
+      </div>
+      <div class="result-item">
+        <div class="result-label">Blend Fee Rate (Effective)</div>
+        <div class="result-value" id="blendRate">-</div>
+      </div>
+    </div>
+
+    <div class="breakdown">
+      <div class="breakdown-row"><span class="label">Blend platform fee</span><span class="value" id="bPlatform">-</span></div>
+      <div class="breakdown-row"><span class="label">Blend % fee (first $15k @ 10%)</span><span class="value" id="bTier1">-</span></div>
+      <div class="breakdown-row"><span class="label">Blend % fee ($15k-$50k @ 7%)</span><span class="value" id="bTier2">-</span></div>
+      <div class="breakdown-row"><span class="label">Blend % fee ($50k+ @ 2%)</span><span class="value" id="bTier3">-</span></div>
+      <div class="breakdown-row"><span class="label"><strong>Total Blend cost</strong></span><span class="value" id="bTotal">-</span></div>
+    </div>
+
+    <p class="note">Blend pricing: $150 USD/mo platform fee + tiered % of ad spend (10% on first $15k, 7% on $15-50k, 2% on $50k+). Month-to-month, no contracts. All figures shown in your selected currency. Platform fee converted at approximate rates.</p>
+  </div>
+</div>
+
+<script>
+const symbols = { USD: '$', AUD: 'A$', GBP: '£', EUR: '€', NZD: 'NZ$', CAD: 'C$' };
+// Approximate conversion from USD for the $150 platform fee
+const platformFeeRates = { USD: 1, AUD: 1.55, GBP: 0.79, EUR: 0.92, NZD: 1.72, CAD: 1.36 };
+
+function fmt(v, cur) {
+  const s = symbols[cur] || '$';
+  if (v < 0) return '-' + s + Math.abs(v).toLocaleString('en', {minimumFractionDigits: 0, maximumFractionDigits: 0});
+  return s + v.toLocaleString('en', {minimumFractionDigits: 0, maximumFractionDigits: 0});
+}
+
+function toggleAgency() {
+  const m = document.getElementById('agencyModel').value;
+  document.getElementById('agencyPctField').style.display = (m === 'flat' || m === 'none') ? 'none' : '';
+  document.getElementById('agencyFlatField').style.display = (m === 'percent' || m === 'none') ? 'none' : '';
+  document.getElementById('agencyFields').style.display = m === 'none' ? 'none' : '';
+}
+
+function calc() {
+  const cur = document.getElementById('currency').value;
+  const spend = parseFloat(document.getElementById('adSpend').value) || 0;
+  const model = document.getElementById('agencyModel').value;
+  const pct = parseFloat(document.getElementById('agencyPct').value) || 0;
+  const flat = parseFloat(document.getElementById('agencyFlat').value) || 0;
+  const inHouseOn = document.getElementById('inHouseToggle').classList.contains('active');
+  const inHouse = inHouseOn ? (parseFloat(document.getElementById('inHouseCost').value) || 0) : 0;
+
+  document.getElementById('inHouseField').style.display = inHouseOn ? '' : 'none';
+
+  // Current cost
+  let agencyCost = 0;
+  if (model === 'percent') agencyCost = spend * (pct / 100);
+  else if (model === 'flat') agencyCost = flat;
+  else if (model === 'both') agencyCost = flat + spend * (pct / 100);
+  const currentTotal = agencyCost + inHouse;
+
+  // Blend cost (tiered)
+  const platformFee = 150 * platformFeeRates[cur];
+  let blendPct = 0;
+  let t1 = 0, t2 = 0, t3 = 0;
+  if (spend <= 15000) {
+    t1 = spend * 0.10;
+  } else if (spend <= 50000) {
+    t1 = 15000 * 0.10;
+    t2 = (spend - 15000) * 0.07;
+  } else {
+    t1 = 15000 * 0.10;
+    t2 = 35000 * 0.07;
+    t3 = (spend - 50000) * 0.02;
+  }
+  blendPct = t1 + t2 + t3;
+  const blendTotal = platformFee + blendPct;
+  const effectiveRate = spend > 0 ? (blendTotal / spend * 100) : 0;
+
+  const savings = currentTotal - blendTotal;
+  const savingsPercent = currentTotal > 0 ? (savings / currentTotal * 100) : 0;
+
+  document.getElementById('currentCost').textContent = fmt(Math.round(currentTotal), cur);
+  document.getElementById('currentCost').className = 'result-value';
+  document.getElementById('currentSub').textContent = model === 'none' ? 'In-house only' : (agencyCost > 0 ? 'Agency: ' + fmt(Math.round(agencyCost), cur) + (inHouse > 0 ? ' + In-house: ' + fmt(Math.round(inHouse), cur) : '') : '');
+
+  document.getElementById('blendCost').textContent = fmt(Math.round(blendTotal), cur);
+  document.getElementById('blendSub').textContent = 'Platform fee + tiered %';
+
+  document.getElementById('monthlySavings').textContent = fmt(Math.round(savings), cur);
+  document.getElementById('monthlySavings').className = 'result-value ' + (savings >= 0 ? 'green' : 'red');
+  document.getElementById('savingsPct').textContent = savings >= 0 ? Math.round(savingsPercent) + '% less than current setup' : 'Blend costs more at this spend/fee level';
+
+  document.getElementById('annualSavings').textContent = fmt(Math.round(savings * 12), cur);
+  document.getElementById('annualSavings').className = 'result-value ' + (savings >= 0 ? 'green' : 'red');
+
+  document.getElementById('blendRate').textContent = effectiveRate.toFixed(1) + '%';
+
+  document.getElementById('bPlatform').textContent = fmt(Math.round(platformFee), cur);
+  document.getElementById('bTier1').textContent = fmt(Math.round(t1), cur);
+  document.getElementById('bTier2').textContent = fmt(Math.round(t2), cur);
+  document.getElementById('bTier3').textContent = fmt(Math.round(t3), cur);
+  document.getElementById('bTotal').textContent = fmt(Math.round(blendTotal), cur);
+}
+
+toggleAgency();
+calc();
+</script>
+</body>
+</html>
