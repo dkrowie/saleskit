@@ -42,10 +42,58 @@
   .toggle::after { content: ''; position: absolute; top: 2px; left: 2px; width: 20px; height: 20px; background: #fff; border-radius: 50%; transition: transform 0.2s; }
   .toggle.active::after { transform: translateX(20px); }
   .currency-symbol { font-size: 14px; color: #71717a; }
+  .print-btn { display: block; margin: 20px auto 0; padding: 12px 28px; background: #6366f1; color: #fff; border: none; border-radius: 8px; font-size: 15px; font-weight: 600; cursor: pointer; letter-spacing: 0.3px; }
+  .print-btn:hover { background: #4f46e5; }
+  .print-header { display: none; }
+
+  @media print {
+    @page { size: A4; margin: 20mm 15mm 15mm 15mm; }
+    body { background: #fff !important; color: #1a1a1a !important; padding: 0 !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+    .container { max-width: 100%; }
+    .print-btn { display: none !important; }
+    .print-header { display: flex !important; align-items: center; gap: 12px; margin-bottom: 24px; padding-bottom: 16px; border-bottom: 2px solid #6366f1; }
+    .print-header svg { width: 200px; height: auto; }
+    .print-header .print-title { font-size: 20px; font-weight: 700; color: #1a1a1a; margin-left: auto; }
+    .card { background: #f8f8fa !important; border-color: #e0e0e4 !important; break-inside: avoid; }
+    .card.results { background: linear-gradient(135deg, #eef0ff, #e8f0ff) !important; border-color: #6366f1 !important; }
+    .results h2 { color: #4f46e5 !important; }
+    .result-item { background: rgba(255,255,255,0.7) !important; }
+    .result-item.highlight { background: rgba(99,102,241,0.1) !important; border-color: rgba(99,102,241,0.3) !important; }
+    h1, h2, label, .subtitle { color: #1a1a1a !important; }
+    .result-label { color: #4f46e5 !important; }
+    .result-value { color: #1a1a1a !important; }
+    .result-value.green { color: #059669 !important; }
+    .result-value.red { color: #dc2626 !important; }
+    .result-sub, .note { color: #555 !important; }
+    .breakdown-row .label { color: #555 !important; }
+    .breakdown-row .value { color: #1a1a1a !important; }
+    input, select { border-color: #ccc !important; background: #fff !important; color: #1a1a1a !important; }
+    .toggle-row, #inHouseRow { color: #1a1a1a !important; }
+    .toggle { background: #ccc !important; }
+    .toggle.active { background: #6366f1 !important; }
+  }
 </style>
 </head>
 <body>
 <div class="container">
+  <div class="print-header">
+    <svg width="353" height="80" viewBox="0 0 353 80" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <path d="M79.9999 0H32.0037V16.0015H47.9976V32.003H63.9988V47.9973H79.9999V0Z" fill="#7882F0"/>
+      <path d="M47.9966 63.9983H16.0015V79.9998H63.9977V47.9968H47.9966V63.9983Z" fill="#F86D59"/>
+      <path d="M63.995 32.0032H47.9939V48.0047H63.995V32.0032Z" fill="#00D8CB"/>
+      <path d="M32.0023 32.0032V16.0017H0V63.999H16.0011V32.0032H32.0023Z" fill="#435EFB"/>
+      <path d="M48.0048 16.0017H32.0037V32.0032H48.0048V16.0017Z" fill="#00CDFF"/>
+      <path d="M47.9966 47.9975H32.0026V32.0032H16.0015V63.999H47.9966V47.9975Z" fill="#FD82DB"/>
+      <path d="M136.457 14.1458C138.328 14.1157 140.185 14.4779 141.912 15.2099C143.444 15.8642 144.826 16.8346 145.97 18.0597C147.087 19.2394 147.946 20.645 148.493 22.185C149.054 23.7573 149.338 25.4177 149.332 27.0902C149.346 28.8338 149.037 30.5646 148.422 32.1921C147.813 33.7909 146.882 35.243 145.69 36.4559C147.878 37.4708 149.693 39.1653 150.874 41.2955C152.054 43.372 152.679 45.7264 152.687 48.1248C152.698 49.8967 152.39 51.6556 151.777 53.3143C151.176 54.9803 150.25 56.5052 149.053 57.7967C147.802 59.1084 146.302 60.1475 144.644 60.8506C142.716 61.6602 140.642 62.05 138.557 61.9949H112.082V14L136.457 14.1458ZM120.469 54.4731H137.403C138.341 54.4858 139.27 54.2919 140.127 53.9046C140.855 53.564 141.5 53.0666 142.02 52.4469C142.536 51.8383 142.939 51.1394 143.21 50.3843C143.482 49.6327 143.623 48.8383 143.626 48.0374C143.674 46.4467 143.151 44.8925 142.156 43.6643C141.181 42.4544 139.64 41.8859 137.539 41.8859H120.541L120.469 54.4731ZM120.541 33.9195H135.023C135.825 33.9172 136.616 33.7224 137.331 33.351C137.989 33.0415 138.564 32.5767 139.009 31.9953C139.446 31.4211 139.779 30.7719 139.991 30.0785C140.459 28.7446 140.459 27.2871 139.991 25.9532C139.784 25.2405 139.424 24.5833 138.937 24.029C138.411 23.4469 137.768 22.987 137.052 22.6806C136.192 22.2928 135.26 22.0988 134.32 22.1121H120.541V33.9195Z" fill="#222E63"/>
+      <path d="M168 12H160V62H168V12Z" fill="#222E63"/>
+      <path d="M234.052 34.0035C232.176 33.9865 230.333 34.5022 228.732 35.4923C227.077 36.531 225.59 37.8219 224.323 39.3195V62H216V26.9154H221.599L223.069 32.5873C226.496 28.1911 230.833 25.9955 236.081 26.0003C237.909 25.9891 239.727 26.276 241.465 26.85C243.144 27.3967 244.694 28.2893 246.017 29.4717C247.385 30.7274 248.46 32.2753 249.164 34.0035C249.991 36.0991 250.396 38.3412 250.354 40.5977V61.9274H242.024V42.3189C242.05 41.0625 241.838 39.8127 241.4 38.6369C241.026 37.637 240.427 36.7393 239.651 36.0152C238.901 35.3238 238.02 34.7928 237.063 34.4537C236.095 34.1119 235.076 33.9447 234.052 33.9599V34.0035Z" fill="#222E63"/>
+      <path d="M307.271 47.5665L300.969 62H297.542L318.605 14H322.24L343.303 62H339.869L333.603 47.5665H307.271ZM308.525 44.6521H332.312L320.419 17.4973L308.525 44.6521Z" fill="#222E63"/>
+      <path d="M352.008 14H349.069V62H352.008V14Z" fill="#222E63"/>
+      <path d="M283.82 11.375V25.6956L284.296 30.5926C282.741 29.2441 281.015 28.1221 279.168 27.2577C277.339 26.408 275.356 25.9721 273.352 25.9789C271.095 25.9694 268.858 26.422 266.769 27.311C264.681 28.2 262.782 29.5078 261.182 31.1593C259.512 32.9162 258.194 34.9977 257.302 37.2844C256.41 39.5711 255.962 42.0179 255.983 44.4845C255.954 47.054 256.446 49.6012 257.427 51.9608C258.313 54.1488 259.587 56.145 261.182 57.846C262.769 59.4873 264.652 60.7884 266.724 61.675C268.866 62.6139 271.167 63.0958 273.492 63.0918C275.728 63.0876 277.939 62.6052 279.987 61.675C282.052 60.738 283.947 59.4431 285.592 57.846L285.796 57.6353L287.197 61.9947H291.982V11.375H283.82ZM274.62 55.3684C269.134 55.3684 264.678 50.4423 264.678 44.361C264.678 38.2796 269.134 33.3535 274.62 33.3535C280.106 33.3535 284.569 38.2796 284.569 44.361C284.569 50.4423 280.113 55.3684 274.62 55.3684Z" fill="#222E63"/>
+      <path d="M192.029 62.7483C181.734 62.7483 174.256 55.6923 174.256 44.7483C174.256 33.8043 181.54 26.7483 192.029 26.7483C202.259 26.7483 209.485 33.6171 209.485 44.0283C209.496 45.1688 209.409 46.3081 209.227 47.4339H183.332C183.777 52.5963 187.361 55.4979 191.835 55.4979C195.67 55.4979 197.785 53.6043 198.932 51.2715H208.589C206.711 57.6723 200.789 62.7483 192.029 62.7483ZM183.426 41.4507H200.244C200.115 36.8571 196.409 33.9555 191.799 33.9555C187.491 33.9555 184.1 36.6627 183.397 41.4507H183.426Z" fill="#222E63"/>
+    </svg>
+    <span class="print-title">Cost Savings Calculator</span>
+  </div>
   <h1>Blend AI - Cost Savings Calculator</h1>
   <p class="subtitle">Compare your current ad management costs against Blend's pricing</p>
 
@@ -139,6 +187,8 @@
 
     <p class="note">Blend pricing: $150 USD/mo platform fee + tiered % of ad spend (10% on first $15k, 7% on $15-50k, 2% on $50k+). Month-to-month, no contracts. All figures shown in your selected currency. Platform fee converted at approximate rates.</p>
   </div>
+
+  <button class="print-btn" onclick="window.print()">📄 Save as PDF</button>
 </div>
 
 <script>
