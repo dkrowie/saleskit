@@ -35,6 +35,9 @@
   input[type="number"], input[type="text"], input[type="url"], select { width: 100%; padding: 12px 14px; background: #09090b; border: 1px solid #27272a; border-radius: 8px; color: #fff; font-size: 16px; outline: none; transition: border-color 0.2s; }
   input:focus, select:focus { border-color: #6366f1; }
   input::placeholder { color: #3f3f46; }
+  input[type="number"]::-webkit-outer-spin-button,
+  input[type="number"]::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+  input[type="number"] { -moz-appearance: textfield; }
   .row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
   .results { background: linear-gradient(135deg, #1e1b4b, #172554); border: 1px solid #312e81; }
   .results h2 { color: #818cf8; }
@@ -71,6 +74,16 @@
   .custom-rates .rate-field label { font-size: 12px; }
   .custom-rates .rate-field input { padding: 10px 12px; font-size: 15px; }
   .custom-badge { display: inline-block; padding: 2px 8px; background: #f59e0b; color: #000; border-radius: 4px; font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; margin-left: 8px; vertical-align: middle; }
+  .impact { background: linear-gradient(135deg, #0c2e1e, #0f3d2e); border: 1px solid #166534; }
+  .impact h2 { color: #34d399; }
+  .impact .result-label { color: #34d399; }
+  .impact .result-item { background: rgba(0,0,0,0.3); }
+  .impact .result-item.impact-highlight { grid-column: 1 / -1; background: rgba(52,211,153,0.1); border: 1px solid rgba(52,211,153,0.25); }
+  .impact .impact-big { font-size: 36px; font-weight: 800; color: #34d399; }
+  .impact .impact-sub { font-size: 14px; color: #a1a1aa; margin-top: 4px; }
+  .impact .breakdown { border-top-color: rgba(52,211,153,0.2); }
+  .impact .note { color: #3f6f56; }
+  .version { font-size: 10px; color: #3f3f46; text-align: right; margin-top: 12px; }
   .print-btn { display: block; margin: 20px auto 0; padding: 12px 28px; background: #6366f1; color: #fff; border: none; border-radius: 8px; font-size: 15px; font-weight: 600; cursor: pointer; letter-spacing: 0.3px; }
   .print-btn:hover { background: #4f46e5; }
   .print-header { display: none; }
@@ -115,6 +128,31 @@
     .toggle-row, #inHouseRow { color: #1a1a1a !important; }
     .toggle { background: #ccc !important; }
     .toggle.active { background: #6366f1 !important; }
+    .card.impact { background: linear-gradient(135deg, #ecfdf5, #e6f9f0) !important; border-color: #34d399 !important; }
+    .impact h2 { color: #059669 !important; }
+    .impact .result-label { color: #059669 !important; }
+    .impact .result-item { background: rgba(255,255,255,0.7) !important; }
+    .impact .result-item.impact-highlight { background: rgba(52,211,153,0.08) !important; border-color: rgba(52,211,153,0.3) !important; }
+    .impact .impact-big { color: #059669 !important; }
+    .impact .impact-sub { color: #555 !important; }
+    .impact .note { color: #777 !important; }
+    .version { color: #999 !important; }
+    /* Fit on one A4 page */
+    .card { padding: 12px 14px !important; margin-bottom: 8px !important; }
+    .card h2 { font-size: 12px !important; margin-bottom: 8px !important; }
+    .result-grid { gap: 6px !important; }
+    .result-item { padding: 8px 10px !important; }
+    .result-label { font-size: 9px !important; }
+    .result-value { font-size: 16px !important; }
+    .result-sub { font-size: 9px !important; }
+    .results .breakdown { display: none !important; }
+    .impact .breakdown { margin-top: 8px !important; padding-top: 8px !important; }
+    .breakdown-row { padding: 3px 0 !important; font-size: 11px !important; }
+    .note { font-size: 9px !important; margin-top: 6px !important; }
+    .impact .impact-big { font-size: 22px !important; }
+    .print-header { margin-bottom: 4px !important; padding-bottom: 8px !important; }
+    .print-prepared { font-size: 11px !important; margin-bottom: 6px !important; }
+    .version { margin-top: 4px !important; font-size: 8px !important; }
   }
 </style>
 </head>
@@ -176,7 +214,7 @@
     <h2>Branding</h2>
     <div class="toggle-row">
       <div class="toggle" id="partnerToggle" onclick="this.classList.toggle('active'); togglePartner()"></div>
-      <label onclick="document.getElementById('partnerToggle').classList.toggle('active'); togglePartner()">Channel partner co-branding</label>
+      <label onclick="document.getElementById('partnerToggle').classList.toggle('active'); togglePartner()">Upload Logo</label>
     </div>
     <div id="partnerFields" style="display:none;">
       <input type="file" id="partnerLogoFile" accept="image/*,.svg" onchange="handleLogoUpload(event)">
@@ -218,6 +256,18 @@
         <label>Monthly Ad Spend</label>
         <input type="number" id="adSpend" placeholder="e.g. 25000" value="25000" oninput="calc()">
       </div>
+    </div>
+    <div class="toggle-row">
+      <div class="toggle" id="roasToggle" onclick="this.classList.toggle('active'); toggleRoas()"></div>
+      <label onclick="document.getElementById('roasToggle').classList.toggle('active'); toggleRoas()">Include ROAS uplift projection?</label>
+    </div>
+  </div>
+
+  <div class="card no-print" id="roasCard" style="display:none;">
+    <h2>ROAS Projection</h2>
+    <div class="field">
+      <label>Current ROAS (e.g. 3.0x)</label>
+      <input type="number" id="currentRoas" placeholder="e.g. 3.0" value="3.0" step="0.1" oninput="calc()">
     </div>
   </div>
 
@@ -320,7 +370,38 @@
     <p class="note" id="pricingNote">Blend pricing: $150 USD/mo platform fee + tiered % of ad spend (10% on first $15k, 7% on $15-50k, 2% on $50k+). Month-to-month, no contracts.</p>
   </div>
 
+  <div class="card impact" id="impactCard" style="display:none;">
+    <h2>Total Monthly Impact</h2>
+    <div class="result-grid">
+      <div class="result-item">
+        <div class="result-label">Management Savings</div>
+        <div class="result-value green" id="impactSavings">-</div>
+        <div class="result-sub">Blend vs current setup</div>
+      </div>
+      <div class="result-item">
+        <div class="result-label">Projected Revenue Uplift</div>
+        <div class="result-value green" id="impactUplift">-</div>
+        <div class="result-sub">From 10% ROAS improvement</div>
+      </div>
+      <div class="result-item impact-highlight">
+        <div class="result-label">Combined Monthly Impact <span style="font-weight:400; text-transform:none; letter-spacing:0; opacity:0.7;">(estimated)</span></div>
+        <div class="impact-big" id="impactTotal">-</div>
+      </div>
+      <div class="result-item impact-highlight">
+        <div class="result-label">Combined Annual Impact <span style="font-weight:400; text-transform:none; letter-spacing:0; opacity:0.7;">(estimated)</span></div>
+        <div class="impact-big" id="impactAnnual">-</div>
+      </div>
+    </div>
+    <div class="breakdown">
+      <div class="breakdown-row"><span class="label">Monthly savings (management costs)</span><span class="value" id="impBdSavings">-</span></div>
+      <div class="breakdown-row"><span class="label">Monthly revenue uplift (10% ROAS lift)</span><span class="value" id="impBdUplift">-</span></div>
+      <div class="breakdown-row"><span class="label"><strong>Total monthly impact</strong></span><span class="value" id="impBdTotal">-</span></div>
+    </div>
+    <p class="note">Savings are based on your inputs. Revenue uplift is an indicative projection assuming a conservative 10% ROAS improvement. Individual results vary. Blend AI customers have seen up to 36% CPA reduction across channels.</p>
+  </div>
+
   <button class="print-btn" onclick="printPDF()">📄 Save as PDF</button>
+  <div class="version">v4</div>
 </div>
 
 <script>
@@ -426,6 +507,13 @@ function removeLogo() {
   });
 })();
 
+function toggleRoas() {
+  const on = document.getElementById('roasToggle').classList.contains('active');
+  document.getElementById('roasCard').style.display = on ? '' : 'none';
+  document.getElementById('impactCard').style.display = on ? '' : 'none';
+  calc();
+}
+
 function toggleCustomRates() {
   const on = document.getElementById('customRatesToggle').classList.contains('active');
   document.getElementById('customRatesFields').style.display = on ? '' : 'none';
@@ -510,6 +598,23 @@ function calc() {
   tierLabels[2].innerHTML = 'Blend usage fee ($15k-$50k @ ' + parseFloat((r2*100).toFixed(2)) + '%)';
   tierLabels[3].innerHTML = 'Blend usage fee ($50k+ @ ' + parseFloat((r3*100).toFixed(2)) + '%)';
   document.getElementById('bTotal').textContent = fmt(Math.round(blendTotal), cur);
+
+  // ROAS uplift projection
+  const roasOn = document.getElementById('roasToggle').classList.contains('active');
+  if (roasOn) {
+    const roas = parseFloat(document.getElementById('currentRoas').value) || 0;
+    const upliftRevenue = spend * roas * 0.1;
+    const totalImpact = Math.max(savings, 0) + upliftRevenue;
+
+    document.getElementById('impactSavings').textContent = savings >= 0 ? '+' + fmt(Math.round(savings), cur) : fmt(0, cur);
+    document.getElementById('impactUplift').textContent = roas > 0 ? '+' + fmt(Math.round(upliftRevenue), cur) : '-';
+    document.getElementById('impactTotal').textContent = '+' + fmt(Math.round(totalImpact), cur) + '/mo';
+    document.getElementById('impactAnnual').textContent = '+' + fmt(Math.round(totalImpact * 12), cur) + '/yr';
+
+    document.getElementById('impBdSavings').textContent = savings >= 0 ? '+' + fmt(Math.round(savings), cur) : fmt(0, cur);
+    document.getElementById('impBdUplift').textContent = roas > 0 ? '+' + fmt(Math.round(upliftRevenue), cur) : '-';
+    document.getElementById('impBdTotal').textContent = '+' + fmt(Math.round(totalImpact), cur);
+  }
 }
 
 function updateClientName() {
