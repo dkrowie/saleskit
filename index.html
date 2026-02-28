@@ -66,6 +66,11 @@
   .logo-upload-area .remove-btn { margin-top: 8px; padding: 4px 12px; background: #27272a; border: none; border-radius: 4px; color: #a1a1aa; font-size: 12px; cursor: pointer; }
   .logo-upload-area .remove-btn:hover { background: #3f3f46; color: #fff; }
   input[type="file"] { display: none; }
+  .custom-rates { display: none; margin-top: 16px; }
+  .custom-rates .row3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px; }
+  .custom-rates .rate-field label { font-size: 12px; }
+  .custom-rates .rate-field input { padding: 10px 12px; font-size: 15px; }
+  .custom-badge { display: inline-block; padding: 2px 8px; background: #f59e0b; color: #000; border-radius: 4px; font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; margin-left: 8px; vertical-align: middle; }
   .print-btn { display: block; margin: 20px auto 0; padding: 12px 28px; background: #6366f1; color: #fff; border: none; border-radius: 8px; font-size: 15px; font-weight: 600; cursor: pointer; letter-spacing: 0.3px; }
   .print-btn:hover { background: #4f46e5; }
   .print-header { display: none; }
@@ -248,6 +253,31 @@
     </div>
   </div>
 
+
+  <div class="card no-print">
+    <h2>Blend Pricing</h2>
+    <div class="toggle-row">
+      <div class="toggle" id="customRatesToggle" onclick="this.classList.toggle('active'); toggleCustomRates()"></div>
+      <label onclick="document.getElementById('customRatesToggle').classList.toggle('active'); toggleCustomRates()">Custom discount rates</label>
+    </div>
+    <div class="custom-rates" id="customRatesFields">
+      <div class="row3">
+        <div class="rate-field field">
+          <label>First $15k (%)</label>
+          <input type="number" id="customTier1" value="10" min="0" max="100" step="0.5" oninput="calc()">
+        </div>
+        <div class="rate-field field">
+          <label>$15k - $50k (%)</label>
+          <input type="number" id="customTier2" value="7" min="0" max="100" step="0.5" oninput="calc()">
+        </div>
+        <div class="rate-field field">
+          <label>$50k+ (%)</label>
+          <input type="number" id="customTier3" value="2" min="0" max="100" step="0.5" oninput="calc()">
+        </div>
+      </div>
+    </div>
+  </div>
+
   <div class="card results" id="resultsCard">
     <h2>Results</h2>
     <div class="result-grid">
@@ -288,7 +318,7 @@
       <div class="breakdown-row"><span class="label"><strong>Total Blend cost</strong></span><span class="value" id="bTotal">-</span></div>
     </div>
 
-    <p class="note">Blend pricing: $150 USD/mo platform fee + tiered % of ad spend (10% on first $15k, 7% on $15-50k, 2% on $50k+). Month-to-month, no contracts. All figures shown in your selected currency. Platform fee converted at approximate rates.</p>
+    <p class="note" id="pricingNote">Blend pricing: $150 USD/mo platform fee + tiered % of ad spend (10% on first $15k, 7% on $15-50k, 2% on $50k+). Month-to-month, no contracts. All figures shown in your selected currency. Platform fee converted at approximate rates.</p>
   </div>
 
   <button class="print-btn" onclick="printPDF()">📄 Save as PDF</button>
@@ -397,6 +427,12 @@ function removeLogo() {
   });
 })();
 
+function toggleCustomRates() {
+  const on = document.getElementById('customRatesToggle').classList.contains('active');
+  document.getElementById('customRatesFields').style.display = on ? '' : 'none';
+  calc();
+}
+
 function toggleAgency() {
   const m = document.getElementById('agencyModel').value;
   document.getElementById('agencyPctField').style.display = (m === 'flat' || m === 'none') ? 'none' : '';
@@ -422,16 +458,21 @@ function calc() {
   const currentTotal = agencyCost + inHouse;
 
   const platformFee = 150 * platformFeeRates[cur];
+  const customOn = document.getElementById('customRatesToggle').classList.contains('active');
+  const r1 = customOn ? (parseFloat(document.getElementById('customTier1').value) || 0) / 100 : 0.10;
+  const r2 = customOn ? (parseFloat(document.getElementById('customTier2').value) || 0) / 100 : 0.07;
+  const r3 = customOn ? (parseFloat(document.getElementById('customTier3').value) || 0) / 100 : 0.02;
+
   let t1 = 0, t2 = 0, t3 = 0;
   if (spend <= 15000) {
-    t1 = spend * 0.10;
+    t1 = spend * r1;
   } else if (spend <= 50000) {
-    t1 = 15000 * 0.10;
-    t2 = (spend - 15000) * 0.07;
+    t1 = 15000 * r1;
+    t2 = (spend - 15000) * r2;
   } else {
-    t1 = 15000 * 0.10;
-    t2 = 35000 * 0.07;
-    t3 = (spend - 50000) * 0.02;
+    t1 = 15000 * r1;
+    t2 = 35000 * r2;
+    t3 = (spend - 50000) * r3;
   }
   const blendTotal = platformFee + t1 + t2 + t3;
   const effectiveRate = spend > 0 ? (blendTotal / spend * 100) : 0;
@@ -443,7 +484,15 @@ function calc() {
   document.getElementById('currentCost').className = 'result-value';
   document.getElementById('currentSub').textContent = model === 'none' ? 'In-house only' : (agencyCost > 0 ? 'Agency: ' + fmt(Math.round(agencyCost), cur) + (inHouse > 0 ? ' + In-house: ' + fmt(Math.round(inHouse), cur) : '') : '');
   document.getElementById('blendCost').textContent = fmt(Math.round(blendTotal), cur);
-  document.getElementById('blendSub').textContent = 'Platform fee + tiered %';
+  document.getElementById('blendSub').textContent = customOn ? 'Custom rates applied' : 'Platform fee + tiered %';
+  
+  // Update note
+  const noteEl = document.getElementById('pricingNote');
+  if (customOn) {
+    noteEl.textContent = 'Custom pricing: $150 USD/mo platform fee + ' + (r1*100) + '% on first $15k, ' + (r2*100) + '% on $15-50k, ' + (r3*100) + '% on $50k+. Month-to-month, no contracts. All figures in selected currency. Platform fee converted at approximate rates.';
+  } else {
+    noteEl.textContent = 'Blend pricing: $150 USD/mo platform fee + tiered % of ad spend (10% on first $15k, 7% on $15-50k, 2% on $50k+). Month-to-month, no contracts. All figures shown in your selected currency. Platform fee converted at approximate rates.';
+  }
   document.getElementById('monthlySavings').textContent = fmt(Math.round(savings), cur);
   document.getElementById('monthlySavings').className = 'result-value ' + (savings >= 0 ? 'green' : 'red');
   document.getElementById('savingsPct').textContent = savings >= 0 ? Math.round(savingsPercent) + '% less than current setup' : 'Blend costs more at this spend/fee level';
@@ -454,6 +503,12 @@ function calc() {
   document.getElementById('bTier1').textContent = fmt(Math.round(t1), cur);
   document.getElementById('bTier2').textContent = fmt(Math.round(t2), cur);
   document.getElementById('bTier3').textContent = fmt(Math.round(t3), cur);
+  
+  // Update tier labels to show actual rates
+  const tierLabels = document.querySelectorAll('.breakdown-row .label');
+  tierLabels[1].innerHTML = 'Blend % fee (first $15k @ ' + (r1*100) + '%)';
+  tierLabels[2].innerHTML = 'Blend % fee ($15k-$50k @ ' + (r2*100) + '%)';
+  tierLabels[3].innerHTML = 'Blend % fee ($50k+ @ ' + (r3*100) + '%)';
   document.getElementById('bTotal').textContent = fmt(Math.round(blendTotal), cur);
 }
 
