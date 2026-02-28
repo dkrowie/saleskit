@@ -199,7 +199,7 @@
     </div>
   </div>
 
-  <div class="print-prepared">Prepared for: <strong id="printClientName">-</strong></div>
+  <div class="print-prepared">Prepared for: <strong id="printClientName">-</strong> &nbsp;|&nbsp; Currency: <strong id="printCurrency">USD</strong></div>
 
   <div class="card no-print">
     <h2>Your Setup</h2>
@@ -318,7 +318,7 @@
       <div class="breakdown-row"><span class="label"><strong>Total Blend cost</strong></span><span class="value" id="bTotal">-</span></div>
     </div>
 
-    <p class="note" id="pricingNote">Blend pricing: $150 USD/mo platform fee + tiered % of ad spend (10% on first $15k, 7% on $15-50k, 2% on $50k+). Month-to-month, no contracts. All figures shown in your selected currency. Platform fee converted at approximate rates.</p>
+    <p class="note" id="pricingNote">Blend pricing: $150 USD/mo platform fee + tiered % of ad spend (10% on first $15k, 7% on $15-50k, 2% on $50k+). Month-to-month, no contracts.</p>
   </div>
 
   <button class="print-btn" onclick="printPDF()">📄 Save as PDF</button>
@@ -442,6 +442,7 @@ function toggleAgency() {
 
 function calc() {
   const cur = document.getElementById('currency').value;
+  if (document.getElementById('printCurrency')) document.getElementById('printCurrency').textContent = cur;
   const spend = parseFloat(document.getElementById('adSpend').value) || 0;
   const model = document.getElementById('agencyModel').value;
   const pct = parseFloat(document.getElementById('agencyPct').value) || 0;
@@ -489,9 +490,9 @@ function calc() {
   // Update note
   const noteEl = document.getElementById('pricingNote');
   if (customOn) {
-    noteEl.textContent = 'Custom pricing: $150 USD/mo platform fee + ' + (r1*100) + '% on first $15k, ' + (r2*100) + '% on $15-50k, ' + (r3*100) + '% on $50k+. Month-to-month, no contracts. All figures in selected currency. Platform fee converted at approximate rates.';
+    noteEl.textContent = 'Custom pricing: $150 USD/mo platform fee + ' + (r1*100) + '% on first $15k, ' + (r2*100) + '% on $15-50k, ' + (r3*100) + '% on $50k+. Month-to-month, no contracts.';
   } else {
-    noteEl.textContent = 'Blend pricing: $150 USD/mo platform fee + tiered % of ad spend (10% on first $15k, 7% on $15-50k, 2% on $50k+). Month-to-month, no contracts. All figures shown in your selected currency. Platform fee converted at approximate rates.';
+    noteEl.textContent = 'Blend pricing: $150 USD/mo platform fee + tiered % of ad spend (10% on first $15k, 7% on $15-50k, 2% on $50k+). Month-to-month, no contracts.';
   }
   document.getElementById('monthlySavings').textContent = fmt(Math.round(savings), cur);
   document.getElementById('monthlySavings').className = 'result-value ' + (savings >= 0 ? 'green' : 'red');
@@ -515,6 +516,7 @@ function calc() {
 function updateClientName() {
   const name = document.getElementById('clientName').value.trim();
   document.getElementById('printClientName').textContent = name || '-';
+  document.getElementById('printCurrency').textContent = document.getElementById('currency').value;
 }
 
 function printPDF() {
