@@ -476,7 +476,7 @@ function calc() {
     t3 = (spend - 50000) * r3;
   }
   const blendTotal = platformFee + t1 + t2 + t3;
-  const effectiveRate = spend > 0 ? (blendTotal / spend * 100) : 0;
+  const effectiveRate = spend > 0 ? ((t1 + t2 + t3) / spend * 100) : 0;
   const savings = currentTotal - blendTotal;
   const savingsPercent = currentTotal > 0 ? (savings / currentTotal * 100) : 0;
 
