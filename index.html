@@ -167,7 +167,6 @@
   <div class="print-header" id="printHeader">
     <!-- Dynamically filled by JS based on partner mode -->
   </div>
-  <div class="print-title-below" id="printTitleBelow" style="display:none;">Return on Investment</div>
 
   
   
@@ -530,14 +529,14 @@ function printPDF() {
         <div class="print-partner-logo"><img src="${partnerLogoData}" alt="Partner logo"></div>
         <div class="print-powered-by"><span>Powered by</span>${blendLogoSvgSmall}</div>
       </div>`;
-    document.getElementById('printTitleBelow').style.cssText = 'display:block !important;';
+
   } else {
     printHeader.innerHTML = `
       <div class="print-header-default">
         ${blendLogoSvgPrint}
         <span class="print-title">Return on Investment</span>
       </div>`;
-    document.getElementById('printTitleBelow').style.cssText = 'display:none !important;';
+
   }
   
   const origTitle = document.title;
