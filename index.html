@@ -8,16 +8,33 @@
   * { margin: 0; padding: 0; box-sizing: border-box; }
   body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #0f0f12; color: #e4e4e7; min-height: 100vh; padding: 40px 20px; }
   .container { max-width: 720px; margin: 0 auto; }
-  h1 { font-size: 28px; font-weight: 700; margin-bottom: 6px; color: #fff; }
-  .subtitle { color: #71717a; font-size: 14px; margin-bottom: 36px; }
+  
+  /* Branding header */
+  .brand-header { text-align: center; margin-bottom: 32px; }
+  .brand-header.partner-mode .partner-logo { display: block; }
+  .brand-header.partner-mode .powered-by { display: flex; }
+  .brand-header.partner-mode .default-logo { display: none; }
+  .brand-header:not(.partner-mode) .partner-logo { display: none; }
+  .brand-header:not(.partner-mode) .powered-by { display: none; }
+  .brand-header:not(.partner-mode) .default-logo { display: block; }
+  
+  .partner-logo { margin: 0 auto 12px; }
+  .partner-logo img { max-height: 80px; max-width: 320px; object-fit: contain; }
+  .powered-by { align-items: center; justify-content: center; gap: 8px; color: #71717a; font-size: 12px; text-transform: uppercase; letter-spacing: 1px; }
+  .powered-by svg { height: 22px; width: auto; opacity: 0.7; }
+  .default-logo { margin: 0 auto 8px; }
+  .default-logo svg { height: 48px; width: auto; }
+  
+  h1 { font-size: 28px; font-weight: 700; margin-bottom: 6px; color: #fff; text-align: center; }
+  .subtitle { color: #71717a; font-size: 14px; margin-bottom: 36px; text-align: center; }
   .card { background: #18181b; border: 1px solid #27272a; border-radius: 12px; padding: 28px; margin-bottom: 20px; }
   .card h2 { font-size: 16px; font-weight: 600; color: #a1a1aa; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 20px; }
   .field { margin-bottom: 20px; }
   .field:last-child { margin-bottom: 0; }
   label { display: block; font-size: 14px; color: #a1a1aa; margin-bottom: 6px; }
-  input[type="number"], select { width: 100%; padding: 12px 14px; background: #09090b; border: 1px solid #27272a; border-radius: 8px; color: #fff; font-size: 16px; outline: none; transition: border-color 0.2s; }
-  input[type="number"]:focus, select:focus { border-color: #6366f1; }
-  input[type="number"]::placeholder { color: #3f3f46; }
+  input[type="number"], input[type="text"], input[type="url"], select { width: 100%; padding: 12px 14px; background: #09090b; border: 1px solid #27272a; border-radius: 8px; color: #fff; font-size: 16px; outline: none; transition: border-color 0.2s; }
+  input:focus, select:focus { border-color: #6366f1; }
+  input::placeholder { color: #3f3f46; }
   .row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
   .results { background: linear-gradient(135deg, #1e1b4b, #172554); border: 1px solid #312e81; }
   .results h2 { color: #818cf8; }
@@ -41,19 +58,41 @@
   .toggle.active { background: #6366f1; }
   .toggle::after { content: ''; position: absolute; top: 2px; left: 2px; width: 20px; height: 20px; background: #fff; border-radius: 50%; transition: transform 0.2s; }
   .toggle.active::after { transform: translateX(20px); }
-  .currency-symbol { font-size: 14px; color: #71717a; }
+  .logo-upload-area { margin-top: 12px; padding: 24px 16px; background: #09090b; border: 2px dashed #27272a; border-radius: 8px; text-align: center; min-height: 80px; display: flex; flex-direction: column; align-items: center; justify-content: center; cursor: pointer; transition: border-color 0.2s, background 0.2s; }
+  .logo-upload-area:hover, .logo-upload-area.dragover { border-color: #6366f1; background: rgba(99,102,241,0.05); }
+  .logo-upload-area img { max-height: 80px; max-width: 320px; object-fit: contain; margin-bottom: 8px; }
+  .logo-upload-area .placeholder { color: #3f3f46; font-size: 13px; }
+  .logo-upload-area .placeholder-icon { font-size: 24px; margin-bottom: 4px; }
+  .logo-upload-area .remove-btn { margin-top: 8px; padding: 4px 12px; background: #27272a; border: none; border-radius: 4px; color: #a1a1aa; font-size: 12px; cursor: pointer; }
+  .logo-upload-area .remove-btn:hover { background: #3f3f46; color: #fff; }
+  input[type="file"] { display: none; }
   .print-btn { display: block; margin: 20px auto 0; padding: 12px 28px; background: #6366f1; color: #fff; border: none; border-radius: 8px; font-size: 15px; font-weight: 600; cursor: pointer; letter-spacing: 0.3px; }
   .print-btn:hover { background: #4f46e5; }
   .print-header { display: none; }
+  .print-prepared { display: none; }
 
   @media print {
     @page { size: A4; margin: 20mm 15mm 15mm 15mm; }
     body { background: #fff !important; color: #1a1a1a !important; padding: 0 !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
     .container { max-width: 100%; }
     .print-btn { display: none !important; }
-    .print-header { display: flex !important; align-items: center; gap: 12px; margin-bottom: 24px; padding-bottom: 16px; border-bottom: 2px solid #6366f1; }
-    .print-header svg { width: 200px; height: auto; }
-    .print-header .print-title { font-size: 20px; font-weight: 700; color: #1a1a1a; margin-left: auto; }
+    .no-print { display: none !important; }
+    
+    /* Print branding */
+    .brand-header { display: none !important; }
+    .print-header { display: block !important; margin-bottom: 8px; padding-bottom: 16px; border-bottom: 2px solid #6366f1; }
+    .print-header-default { display: flex; align-items: center; gap: 12px; }
+    .print-header-default svg { width: 200px; height: auto; }
+    .print-header-default .print-title { font-size: 20px; font-weight: 700; color: #1a1a1a; margin-left: auto; }
+    .print-header-partner { text-align: center; }
+    .print-header-partner .print-partner-logo { margin-bottom: 6px; }
+    .print-header-partner .print-partner-logo img { max-height: 70px; max-width: 300px; }
+    .print-header-partner .print-powered-by { display: flex; align-items: center; justify-content: center; gap: 6px; color: #888; font-size: 11px; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 0; }
+    .print-header-partner .print-powered-by svg { height: 18px; width: auto; }
+    .print-title-below { font-size: 20px; font-weight: 700; color: #1a1a1a; margin-top: 14px; text-align: center; }
+    
+    .print-prepared { display: block !important; font-size: 14px; color: #555; margin-bottom: 20px; }
+    .print-prepared strong { color: #1a1a1a; }
     .card { background: #f8f8fa !important; border-color: #e0e0e4 !important; break-inside: avoid; }
     .card.results { background: linear-gradient(135deg, #eef0ff, #e8f0ff) !important; border-color: #6366f1 !important; }
     .results h2 { color: #4f46e5 !important; }
@@ -76,28 +115,87 @@
 </head>
 <body>
 <div class="container">
-  <div class="print-header">
-    <svg width="353" height="80" viewBox="0 0 353 80" fill="none" xmlns="http://www.w3.org/2000/svg">
-      <path d="M79.9999 0H32.0037V16.0015H47.9976V32.003H63.9988V47.9973H79.9999V0Z" fill="#7882F0"/>
-      <path d="M47.9966 63.9983H16.0015V79.9998H63.9977V47.9968H47.9966V63.9983Z" fill="#F86D59"/>
-      <path d="M63.995 32.0032H47.9939V48.0047H63.995V32.0032Z" fill="#00D8CB"/>
-      <path d="M32.0023 32.0032V16.0017H0V63.999H16.0011V32.0032H32.0023Z" fill="#435EFB"/>
-      <path d="M48.0048 16.0017H32.0037V32.0032H48.0048V16.0017Z" fill="#00CDFF"/>
-      <path d="M47.9966 47.9975H32.0026V32.0032H16.0015V63.999H47.9966V47.9975Z" fill="#FD82DB"/>
-      <path d="M136.457 14.1458C138.328 14.1157 140.185 14.4779 141.912 15.2099C143.444 15.8642 144.826 16.8346 145.97 18.0597C147.087 19.2394 147.946 20.645 148.493 22.185C149.054 23.7573 149.338 25.4177 149.332 27.0902C149.346 28.8338 149.037 30.5646 148.422 32.1921C147.813 33.7909 146.882 35.243 145.69 36.4559C147.878 37.4708 149.693 39.1653 150.874 41.2955C152.054 43.372 152.679 45.7264 152.687 48.1248C152.698 49.8967 152.39 51.6556 151.777 53.3143C151.176 54.9803 150.25 56.5052 149.053 57.7967C147.802 59.1084 146.302 60.1475 144.644 60.8506C142.716 61.6602 140.642 62.05 138.557 61.9949H112.082V14L136.457 14.1458ZM120.469 54.4731H137.403C138.341 54.4858 139.27 54.2919 140.127 53.9046C140.855 53.564 141.5 53.0666 142.02 52.4469C142.536 51.8383 142.939 51.1394 143.21 50.3843C143.482 49.6327 143.623 48.8383 143.626 48.0374C143.674 46.4467 143.151 44.8925 142.156 43.6643C141.181 42.4544 139.64 41.8859 137.539 41.8859H120.541L120.469 54.4731ZM120.541 33.9195H135.023C135.825 33.9172 136.616 33.7224 137.331 33.351C137.989 33.0415 138.564 32.5767 139.009 31.9953C139.446 31.4211 139.779 30.7719 139.991 30.0785C140.459 28.7446 140.459 27.2871 139.991 25.9532C139.784 25.2405 139.424 24.5833 138.937 24.029C138.411 23.4469 137.768 22.987 137.052 22.6806C136.192 22.2928 135.26 22.0988 134.32 22.1121H120.541V33.9195Z" fill="#222E63"/>
-      <path d="M168 12H160V62H168V12Z" fill="#222E63"/>
-      <path d="M234.052 34.0035C232.176 33.9865 230.333 34.5022 228.732 35.4923C227.077 36.531 225.59 37.8219 224.323 39.3195V62H216V26.9154H221.599L223.069 32.5873C226.496 28.1911 230.833 25.9955 236.081 26.0003C237.909 25.9891 239.727 26.276 241.465 26.85C243.144 27.3967 244.694 28.2893 246.017 29.4717C247.385 30.7274 248.46 32.2753 249.164 34.0035C249.991 36.0991 250.396 38.3412 250.354 40.5977V61.9274H242.024V42.3189C242.05 41.0625 241.838 39.8127 241.4 38.6369C241.026 37.637 240.427 36.7393 239.651 36.0152C238.901 35.3238 238.02 34.7928 237.063 34.4537C236.095 34.1119 235.076 33.9447 234.052 33.9599V34.0035Z" fill="#222E63"/>
-      <path d="M307.271 47.5665L300.969 62H297.542L318.605 14H322.24L343.303 62H339.869L333.603 47.5665H307.271ZM308.525 44.6521H332.312L320.419 17.4973L308.525 44.6521Z" fill="#222E63"/>
-      <path d="M352.008 14H349.069V62H352.008V14Z" fill="#222E63"/>
-      <path d="M283.82 11.375V25.6956L284.296 30.5926C282.741 29.2441 281.015 28.1221 279.168 27.2577C277.339 26.408 275.356 25.9721 273.352 25.9789C271.095 25.9694 268.858 26.422 266.769 27.311C264.681 28.2 262.782 29.5078 261.182 31.1593C259.512 32.9162 258.194 34.9977 257.302 37.2844C256.41 39.5711 255.962 42.0179 255.983 44.4845C255.954 47.054 256.446 49.6012 257.427 51.9608C258.313 54.1488 259.587 56.145 261.182 57.846C262.769 59.4873 264.652 60.7884 266.724 61.675C268.866 62.6139 271.167 63.0958 273.492 63.0918C275.728 63.0876 277.939 62.6052 279.987 61.675C282.052 60.738 283.947 59.4431 285.592 57.846L285.796 57.6353L287.197 61.9947H291.982V11.375H283.82ZM274.62 55.3684C269.134 55.3684 264.678 50.4423 264.678 44.361C264.678 38.2796 269.134 33.3535 274.62 33.3535C280.106 33.3535 284.569 38.2796 284.569 44.361C284.569 50.4423 280.113 55.3684 274.62 55.3684Z" fill="#222E63"/>
-      <path d="M192.029 62.7483C181.734 62.7483 174.256 55.6923 174.256 44.7483C174.256 33.8043 181.54 26.7483 192.029 26.7483C202.259 26.7483 209.485 33.6171 209.485 44.0283C209.496 45.1688 209.409 46.3081 209.227 47.4339H183.332C183.777 52.5963 187.361 55.4979 191.835 55.4979C195.67 55.4979 197.785 53.6043 198.932 51.2715H208.589C206.711 57.6723 200.789 62.7483 192.029 62.7483ZM183.426 41.4507H200.244C200.115 36.8571 196.409 33.9555 191.799 33.9555C187.491 33.9555 184.1 36.6627 183.397 41.4507H183.426Z" fill="#222E63"/>
-    </svg>
-    <span class="print-title">Cost Savings Calculator</span>
-  </div>
-  <h1>Blend AI - Cost Savings Calculator</h1>
-  <p class="subtitle">Compare your current ad management costs against Blend's pricing</p>
 
-  <div class="card">
+  <!-- Live branding header -->
+  <div class="brand-header" id="brandHeader">
+    <div class="partner-logo" id="partnerLogoDisplay">
+      <img id="partnerLogoImg" src="" alt="Partner logo">
+    </div>
+    <div class="powered-by">
+      <span>Powered by</span>
+      <svg width="353" height="80" viewBox="0 0 353 80" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M79.9999 0H32.0037V16.0015H47.9976V32.003H63.9988V47.9973H79.9999V0Z" fill="#7882F0"/>
+        <path d="M47.9966 63.9983H16.0015V79.9998H63.9977V47.9968H47.9966V63.9983Z" fill="#F86D59"/>
+        <path d="M63.995 32.0032H47.9939V48.0047H63.995V32.0032Z" fill="#00D8CB"/>
+        <path d="M32.0023 32.0032V16.0017H0V63.999H16.0011V32.0032H32.0023Z" fill="#435EFB"/>
+        <path d="M48.0048 16.0017H32.0037V32.0032H48.0048V16.0017Z" fill="#00CDFF"/>
+        <path d="M47.9966 47.9975H32.0026V32.0032H16.0015V63.999H47.9966V47.9975Z" fill="#FD82DB"/>
+        <path d="M136.457 14.1458C138.328 14.1157 140.185 14.4779 141.912 15.2099C143.444 15.8642 144.826 16.8346 145.97 18.0597C147.087 19.2394 147.946 20.645 148.493 22.185C149.054 23.7573 149.338 25.4177 149.332 27.0902C149.346 28.8338 149.037 30.5646 148.422 32.1921C147.813 33.7909 146.882 35.243 145.69 36.4559C147.878 37.4708 149.693 39.1653 150.874 41.2955C152.054 43.372 152.679 45.7264 152.687 48.1248C152.698 49.8967 152.39 51.6556 151.777 53.3143C151.176 54.9803 150.25 56.5052 149.053 57.7967C147.802 59.1084 146.302 60.1475 144.644 60.8506C142.716 61.6602 140.642 62.05 138.557 61.9949H112.082V14L136.457 14.1458ZM120.469 54.4731H137.403C138.341 54.4858 139.27 54.2919 140.127 53.9046C140.855 53.564 141.5 53.0666 142.02 52.4469C142.536 51.8383 142.939 51.1394 143.21 50.3843C143.482 49.6327 143.623 48.8383 143.626 48.0374C143.674 46.4467 143.151 44.8925 142.156 43.6643C141.181 42.4544 139.64 41.8859 137.539 41.8859H120.541L120.469 54.4731ZM120.541 33.9195H135.023C135.825 33.9172 136.616 33.7224 137.331 33.351C137.989 33.0415 138.564 32.5767 139.009 31.9953C139.446 31.4211 139.779 30.7719 139.991 30.0785C140.459 28.7446 140.459 27.2871 139.991 25.9532C139.784 25.2405 139.424 24.5833 138.937 24.029C138.411 23.4469 137.768 22.987 137.052 22.6806C136.192 22.2928 135.26 22.0988 134.32 22.1121H120.541V33.9195Z" fill="#222E63"/>
+        <path d="M168 12H160V62H168V12Z" fill="#222E63"/>
+        <path d="M234.052 34.0035C232.176 33.9865 230.333 34.5022 228.732 35.4923C227.077 36.531 225.59 37.8219 224.323 39.3195V62H216V26.9154H221.599L223.069 32.5873C226.496 28.1911 230.833 25.9955 236.081 26.0003C237.909 25.9891 239.727 26.276 241.465 26.85C243.144 27.3967 244.694 28.2893 246.017 29.4717C247.385 30.7274 248.46 32.2753 249.164 34.0035C249.991 36.0991 250.396 38.3412 250.354 40.5977V61.9274H242.024V42.3189C242.05 41.0625 241.838 39.8127 241.4 38.6369C241.026 37.637 240.427 36.7393 239.651 36.0152C238.901 35.3238 238.02 34.7928 237.063 34.4537C236.095 34.1119 235.076 33.9447 234.052 33.9599V34.0035Z" fill="#222E63"/>
+        <path d="M307.271 47.5665L300.969 62H297.542L318.605 14H322.24L343.303 62H339.869L333.603 47.5665H307.271ZM308.525 44.6521H332.312L320.419 17.4973L308.525 44.6521Z" fill="#222E63"/>
+        <path d="M352.008 14H349.069V62H352.008V14Z" fill="#222E63"/>
+        <path d="M283.82 11.375V25.6956L284.296 30.5926C282.741 29.2441 281.015 28.1221 279.168 27.2577C277.339 26.408 275.356 25.9721 273.352 25.9789C271.095 25.9694 268.858 26.422 266.769 27.311C264.681 28.2 262.782 29.5078 261.182 31.1593C259.512 32.9162 258.194 34.9977 257.302 37.2844C256.41 39.5711 255.962 42.0179 255.983 44.4845C255.954 47.054 256.446 49.6012 257.427 51.9608C258.313 54.1488 259.587 56.145 261.182 57.846C262.769 59.4873 264.652 60.7884 266.724 61.675C268.866 62.6139 271.167 63.0958 273.492 63.0918C275.728 63.0876 277.939 62.6052 279.987 61.675C282.052 60.738 283.947 59.4431 285.592 57.846L285.796 57.6353L287.197 61.9947H291.982V11.375H283.82ZM274.62 55.3684C269.134 55.3684 264.678 50.4423 264.678 44.361C264.678 38.2796 269.134 33.3535 274.62 33.3535C280.106 33.3535 284.569 38.2796 284.569 44.361C284.569 50.4423 280.113 55.3684 274.62 55.3684Z" fill="#222E63"/>
+        <path d="M192.029 62.7483C181.734 62.7483 174.256 55.6923 174.256 44.7483C174.256 33.8043 181.54 26.7483 192.029 26.7483C202.259 26.7483 209.485 33.6171 209.485 44.0283C209.496 45.1688 209.409 46.3081 209.227 47.4339H183.332C183.777 52.5963 187.361 55.4979 191.835 55.4979C195.67 55.4979 197.785 53.6043 198.932 51.2715H208.589C206.711 57.6723 200.789 62.7483 192.029 62.7483ZM183.426 41.4507H200.244C200.115 36.8571 196.409 33.9555 191.799 33.9555C187.491 33.9555 184.1 36.6627 183.397 41.4507H183.426Z" fill="#222E63"/>
+      </svg>
+    </div>
+    <div class="default-logo">
+      <svg width="353" height="80" viewBox="0 0 353 80" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M79.9999 0H32.0037V16.0015H47.9976V32.003H63.9988V47.9973H79.9999V0Z" fill="#7882F0"/>
+        <path d="M47.9966 63.9983H16.0015V79.9998H63.9977V47.9968H47.9966V63.9983Z" fill="#F86D59"/>
+        <path d="M63.995 32.0032H47.9939V48.0047H63.995V32.0032Z" fill="#00D8CB"/>
+        <path d="M32.0023 32.0032V16.0017H0V63.999H16.0011V32.0032H32.0023Z" fill="#435EFB"/>
+        <path d="M48.0048 16.0017H32.0037V32.0032H48.0048V16.0017Z" fill="#00CDFF"/>
+        <path d="M47.9966 47.9975H32.0026V32.0032H16.0015V63.999H47.9966V47.9975Z" fill="#FD82DB"/>
+        <path d="M136.457 14.1458C138.328 14.1157 140.185 14.4779 141.912 15.2099C143.444 15.8642 144.826 16.8346 145.97 18.0597C147.087 19.2394 147.946 20.645 148.493 22.185C149.054 23.7573 149.338 25.4177 149.332 27.0902C149.346 28.8338 149.037 30.5646 148.422 32.1921C147.813 33.7909 146.882 35.243 145.69 36.4559C147.878 37.4708 149.693 39.1653 150.874 41.2955C152.054 43.372 152.679 45.7264 152.687 48.1248C152.698 49.8967 152.39 51.6556 151.777 53.3143C151.176 54.9803 150.25 56.5052 149.053 57.7967C147.802 59.1084 146.302 60.1475 144.644 60.8506C142.716 61.6602 140.642 62.05 138.557 61.9949H112.082V14L136.457 14.1458ZM120.469 54.4731H137.403C138.341 54.4858 139.27 54.2919 140.127 53.9046C140.855 53.564 141.5 53.0666 142.02 52.4469C142.536 51.8383 142.939 51.1394 143.21 50.3843C143.482 49.6327 143.623 48.8383 143.626 48.0374C143.674 46.4467 143.151 44.8925 142.156 43.6643C141.181 42.4544 139.64 41.8859 137.539 41.8859H120.541L120.469 54.4731ZM120.541 33.9195H135.023C135.825 33.9172 136.616 33.7224 137.331 33.351C137.989 33.0415 138.564 32.5767 139.009 31.9953C139.446 31.4211 139.779 30.7719 139.991 30.0785C140.459 28.7446 140.459 27.2871 139.991 25.9532C139.784 25.2405 139.424 24.5833 138.937 24.029C138.411 23.4469 137.768 22.987 137.052 22.6806C136.192 22.2928 135.26 22.0988 134.32 22.1121H120.541V33.9195Z" fill="white"/>
+        <path d="M168 12H160V62H168V12Z" fill="white"/>
+        <path d="M234.052 34.0035C232.176 33.9865 230.333 34.5022 228.732 35.4923C227.077 36.531 225.59 37.8219 224.323 39.3195V62H216V26.9154H221.599L223.069 32.5873C226.496 28.1911 230.833 25.9955 236.081 26.0003C237.909 25.9891 239.727 26.276 241.465 26.85C243.144 27.3967 244.694 28.2893 246.017 29.4717C247.385 30.7274 248.46 32.2753 249.164 34.0035C249.991 36.0991 250.396 38.3412 250.354 40.5977V61.9274H242.024V42.3189C242.05 41.0625 241.838 39.8127 241.4 38.6369C241.026 37.637 240.427 36.7393 239.651 36.0152C238.901 35.3238 238.02 34.7928 237.063 34.4537C236.095 34.1119 235.076 33.9447 234.052 33.9599V34.0035Z" fill="white"/>
+        <path d="M307.271 47.5665L300.969 62H297.542L318.605 14H322.24L343.303 62H339.869L333.603 47.5665H307.271ZM308.525 44.6521H332.312L320.419 17.4973L308.525 44.6521Z" fill="white"/>
+        <path d="M352.008 14H349.069V62H352.008V14Z" fill="white"/>
+        <path d="M283.82 11.375V25.6956L284.296 30.5926C282.741 29.2441 281.015 28.1221 279.168 27.2577C277.339 26.408 275.356 25.9721 273.352 25.9789C271.095 25.9694 268.858 26.422 266.769 27.311C264.681 28.2 262.782 29.5078 261.182 31.1593C259.512 32.9162 258.194 34.9977 257.302 37.2844C256.41 39.5711 255.962 42.0179 255.983 44.4845C255.954 47.054 256.446 49.6012 257.427 51.9608C258.313 54.1488 259.587 56.145 261.182 57.846C262.769 59.4873 264.652 60.7884 266.724 61.675C268.866 62.6139 271.167 63.0958 273.492 63.0918C275.728 63.0876 277.939 62.6052 279.987 61.675C282.052 60.738 283.947 59.4431 285.592 57.846L285.796 57.6353L287.197 61.9947H291.982V11.375H283.82ZM274.62 55.3684C269.134 55.3684 264.678 50.4423 264.678 44.361C264.678 38.2796 269.134 33.3535 274.62 33.3535C280.106 33.3535 284.569 38.2796 284.569 44.361C284.569 50.4423 280.113 55.3684 274.62 55.3684Z" fill="white"/>
+        <path d="M192.029 62.7483C181.734 62.7483 174.256 55.6923 174.256 44.7483C174.256 33.8043 181.54 26.7483 192.029 26.7483C202.259 26.7483 209.485 33.6171 209.485 44.0283C209.496 45.1688 209.409 46.3081 209.227 47.4339H183.332C183.777 52.5963 187.361 55.4979 191.835 55.4979C195.67 55.4979 197.785 53.6043 198.932 51.2715H208.589C206.711 57.6723 200.789 62.7483 192.029 62.7483ZM183.426 41.4507H200.244C200.115 36.8571 196.409 33.9555 191.799 33.9555C187.491 33.9555 184.1 36.6627 183.397 41.4507H183.426Z" fill="white"/>
+      </svg>
+    </div>
+  </div>
+
+  <!-- Print header (shown only when printing) -->
+  <div class="print-header" id="printHeader">
+    <!-- Dynamically filled by JS based on partner mode -->
+  </div>
+
+  <h1 class="no-print">Cost Savings Calculator</h1>
+  <p class="subtitle no-print">Compare your current ad management costs against Blend's pricing</p>
+
+  <!-- Partner branding card -->
+  <div class="card no-print">
+    <h2>Branding</h2>
+    <div class="toggle-row">
+      <div class="toggle" id="partnerToggle" onclick="this.classList.toggle('active'); togglePartner()"></div>
+      <label onclick="document.getElementById('partnerToggle').classList.toggle('active'); togglePartner()">Channel partner co-branding</label>
+    </div>
+    <div id="partnerFields" style="display:none;">
+      <input type="file" id="partnerLogoFile" accept="image/*,.svg" onchange="handleLogoUpload(event)">
+      <div class="logo-upload-area" id="logoUploadArea" onclick="document.getElementById('partnerLogoFile').click()">
+        <div id="logoPreviewContent">
+          <div class="placeholder-icon">📁</div>
+          <span class="placeholder">Drop a logo here or click to upload</span>
+          <span class="placeholder" style="font-size:11px; margin-top:4px;">PNG, SVG, JPG - any size</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card no-print">
+    <h2>Prepared For</h2>
+    <div class="field">
+      <label>Client / Company Name</label>
+      <input type="text" id="clientName" placeholder="e.g. Acme Store" oninput="updateClientName()">
+    </div>
+  </div>
+
+  <div class="print-prepared">Prepared for: <strong id="printClientName">-</strong></div>
+
+  <div class="card no-print">
     <h2>Your Setup</h2>
     <div class="row">
       <div class="field">
@@ -118,7 +216,7 @@
     </div>
   </div>
 
-  <div class="card">
+  <div class="card no-print">
     <h2>Current Agency / Management Costs</h2>
     <div class="field">
       <label>How is your agency charging you?</label>
@@ -152,6 +250,10 @@
   <div class="card results" id="resultsCard">
     <h2>Results</h2>
     <div class="result-grid">
+      <div class="result-item" style="grid-column: 1 / -1;">
+        <div class="result-label">Monthly Ad Spend</div>
+        <div class="result-value" id="resultAdSpend">-</div>
+      </div>
       <div class="result-item">
         <div class="result-label">Current Monthly Cost</div>
         <div class="result-value" id="currentCost">-</div>
@@ -188,19 +290,111 @@
     <p class="note">Blend pricing: $150 USD/mo platform fee + tiered % of ad spend (10% on first $15k, 7% on $15-50k, 2% on $50k+). Month-to-month, no contracts. All figures shown in your selected currency. Platform fee converted at approximate rates.</p>
   </div>
 
-  <button class="print-btn" onclick="window.print()">📄 Save as PDF</button>
+  <button class="print-btn" onclick="printPDF()">📄 Save as PDF</button>
 </div>
 
 <script>
 const symbols = { USD: '$', AUD: 'A$', GBP: '£', EUR: '€', NZD: 'NZ$', CAD: 'C$' };
-// Approximate conversion from USD for the $150 platform fee
 const platformFeeRates = { USD: 1, AUD: 1.55, GBP: 0.79, EUR: 0.92, NZD: 1.72, CAD: 1.36 };
+
+const blendLogoSvgPrint = `<svg width="200" height="45" viewBox="0 0 353 80" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <path d="M79.9999 0H32.0037V16.0015H47.9976V32.003H63.9988V47.9973H79.9999V0Z" fill="#7882F0"/>
+  <path d="M47.9966 63.9983H16.0015V79.9998H63.9977V47.9968H47.9966V63.9983Z" fill="#F86D59"/>
+  <path d="M63.995 32.0032H47.9939V48.0047H63.995V32.0032Z" fill="#00D8CB"/>
+  <path d="M32.0023 32.0032V16.0017H0V63.999H16.0011V32.0032H32.0023Z" fill="#435EFB"/>
+  <path d="M48.0048 16.0017H32.0037V32.0032H48.0048V16.0017Z" fill="#00CDFF"/>
+  <path d="M47.9966 47.9975H32.0026V32.0032H16.0015V63.999H47.9966V47.9975Z" fill="#FD82DB"/>
+  <path d="M136.457 14.1458C138.328 14.1157 140.185 14.4779 141.912 15.2099C143.444 15.8642 144.826 16.8346 145.97 18.0597C147.087 19.2394 147.946 20.645 148.493 22.185C149.054 23.7573 149.338 25.4177 149.332 27.0902C149.346 28.8338 149.037 30.5646 148.422 32.1921C147.813 33.7909 146.882 35.243 145.69 36.4559C147.878 37.4708 149.693 39.1653 150.874 41.2955C152.054 43.372 152.679 45.7264 152.687 48.1248C152.698 49.8967 152.39 51.6556 151.777 53.3143C151.176 54.9803 150.25 56.5052 149.053 57.7967C147.802 59.1084 146.302 60.1475 144.644 60.8506C142.716 61.6602 140.642 62.05 138.557 61.9949H112.082V14L136.457 14.1458ZM120.469 54.4731H137.403C138.341 54.4858 139.27 54.2919 140.127 53.9046C140.855 53.564 141.5 53.0666 142.02 52.4469C142.536 51.8383 142.939 51.1394 143.21 50.3843C143.482 49.6327 143.623 48.8383 143.626 48.0374C143.674 46.4467 143.151 44.8925 142.156 43.6643C141.181 42.4544 139.64 41.8859 137.539 41.8859H120.541L120.469 54.4731ZM120.541 33.9195H135.023C135.825 33.9172 136.616 33.7224 137.331 33.351C137.989 33.0415 138.564 32.5767 139.009 31.9953C139.446 31.4211 139.779 30.7719 139.991 30.0785C140.459 28.7446 140.459 27.2871 139.991 25.9532C139.784 25.2405 139.424 24.5833 138.937 24.029C138.411 23.4469 137.768 22.987 137.052 22.6806C136.192 22.2928 135.26 22.0988 134.32 22.1121H120.541V33.9195Z" fill="#222E63"/>
+  <path d="M168 12H160V62H168V12Z" fill="#222E63"/>
+  <path d="M234.052 34.0035C232.176 33.9865 230.333 34.5022 228.732 35.4923C227.077 36.531 225.59 37.8219 224.323 39.3195V62H216V26.9154H221.599L223.069 32.5873C226.496 28.1911 230.833 25.9955 236.081 26.0003C237.909 25.9891 239.727 26.276 241.465 26.85C243.144 27.3967 244.694 28.2893 246.017 29.4717C247.385 30.7274 248.46 32.2753 249.164 34.0035C249.991 36.0991 250.396 38.3412 250.354 40.5977V61.9274H242.024V42.3189C242.05 41.0625 241.838 39.8127 241.4 38.6369C241.026 37.637 240.427 36.7393 239.651 36.0152C238.901 35.3238 238.02 34.7928 237.063 34.4537C236.095 34.1119 235.076 33.9447 234.052 33.9599V34.0035Z" fill="#222E63"/>
+  <path d="M307.271 47.5665L300.969 62H297.542L318.605 14H322.24L343.303 62H339.869L333.603 47.5665H307.271ZM308.525 44.6521H332.312L320.419 17.4973L308.525 44.6521Z" fill="#222E63"/>
+  <path d="M352.008 14H349.069V62H352.008V14Z" fill="#222E63"/>
+  <path d="M283.82 11.375V25.6956L284.296 30.5926C282.741 29.2441 281.015 28.1221 279.168 27.2577C277.339 26.408 275.356 25.9721 273.352 25.9789C271.095 25.9694 268.858 26.422 266.769 27.311C264.681 28.2 262.782 29.5078 261.182 31.1593C259.512 32.9162 258.194 34.9977 257.302 37.2844C256.41 39.5711 255.962 42.0179 255.983 44.4845C255.954 47.054 256.446 49.6012 257.427 51.9608C258.313 54.1488 259.587 56.145 261.182 57.846C262.769 59.4873 264.652 60.7884 266.724 61.675C268.866 62.6139 271.167 63.0958 273.492 63.0918C275.728 63.0876 277.939 62.6052 279.987 61.675C282.052 60.738 283.947 59.4431 285.592 57.846L285.796 57.6353L287.197 61.9947H291.982V11.375H283.82ZM274.62 55.3684C269.134 55.3684 264.678 50.4423 264.678 44.361C264.678 38.2796 269.134 33.3535 274.62 33.3535C280.106 33.3535 284.569 38.2796 284.569 44.361C284.569 50.4423 280.113 55.3684 274.62 55.3684Z" fill="#222E63"/>
+  <path d="M192.029 62.7483C181.734 62.7483 174.256 55.6923 174.256 44.7483C174.256 33.8043 181.54 26.7483 192.029 26.7483C202.259 26.7483 209.485 33.6171 209.485 44.0283C209.496 45.1688 209.409 46.3081 209.227 47.4339H183.332C183.777 52.5963 187.361 55.4979 191.835 55.4979C195.67 55.4979 197.785 53.6043 198.932 51.2715H208.589C206.711 57.6723 200.789 62.7483 192.029 62.7483ZM183.426 41.4507H200.244C200.115 36.8571 196.409 33.9555 191.799 33.9555C187.491 33.9555 184.1 36.6627 183.397 41.4507H183.426Z" fill="#222E63"/>
+</svg>`;
+
+const blendLogoSvgSmall = `<svg width="100" height="23" viewBox="0 0 353 80" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <path d="M79.9999 0H32.0037V16.0015H47.9976V32.003H63.9988V47.9973H79.9999V0Z" fill="#7882F0"/>
+  <path d="M47.9966 63.9983H16.0015V79.9998H63.9977V47.9968H47.9966V63.9983Z" fill="#F86D59"/>
+  <path d="M63.995 32.0032H47.9939V48.0047H63.995V32.0032Z" fill="#00D8CB"/>
+  <path d="M32.0023 32.0032V16.0017H0V63.999H16.0011V32.0032H32.0023Z" fill="#435EFB"/>
+  <path d="M48.0048 16.0017H32.0037V32.0032H48.0048V16.0017Z" fill="#00CDFF"/>
+  <path d="M47.9966 47.9975H32.0026V32.0032H16.0015V63.999H47.9966V47.9975Z" fill="#FD82DB"/>
+  <path d="M136.457 14.1458C138.328 14.1157 140.185 14.4779 141.912 15.2099C143.444 15.8642 144.826 16.8346 145.97 18.0597C147.087 19.2394 147.946 20.645 148.493 22.185C149.054 23.7573 149.338 25.4177 149.332 27.0902C149.346 28.8338 149.037 30.5646 148.422 32.1921C147.813 33.7909 146.882 35.243 145.69 36.4559C147.878 37.4708 149.693 39.1653 150.874 41.2955C152.054 43.372 152.679 45.7264 152.687 48.1248C152.698 49.8967 152.39 51.6556 151.777 53.3143C151.176 54.9803 150.25 56.5052 149.053 57.7967C147.802 59.1084 146.302 60.1475 144.644 60.8506C142.716 61.6602 140.642 62.05 138.557 61.9949H112.082V14L136.457 14.1458ZM120.469 54.4731H137.403C138.341 54.4858 139.27 54.2919 140.127 53.9046C140.855 53.564 141.5 53.0666 142.02 52.4469C142.536 51.8383 142.939 51.1394 143.21 50.3843C143.482 49.6327 143.623 48.8383 143.626 48.0374C143.674 46.4467 143.151 44.8925 142.156 43.6643C141.181 42.4544 139.64 41.8859 137.539 41.8859H120.541L120.469 54.4731ZM120.541 33.9195H135.023C135.825 33.9172 136.616 33.7224 137.331 33.351C137.989 33.0415 138.564 32.5767 139.009 31.9953C139.446 31.4211 139.779 30.7719 139.991 30.0785C140.459 28.7446 140.459 27.2871 139.991 25.9532C139.784 25.2405 139.424 24.5833 138.937 24.029C138.411 23.4469 137.768 22.987 137.052 22.6806C136.192 22.2928 135.26 22.0988 134.32 22.1121H120.541V33.9195Z" fill="#222E63"/>
+  <path d="M168 12H160V62H168V12Z" fill="#222E63"/>
+  <path d="M234.052 34.0035C232.176 33.9865 230.333 34.5022 228.732 35.4923C227.077 36.531 225.59 37.8219 224.323 39.3195V62H216V26.9154H221.599L223.069 32.5873C226.496 28.1911 230.833 25.9955 236.081 26.0003C237.909 25.9891 239.727 26.276 241.465 26.85C243.144 27.3967 244.694 28.2893 246.017 29.4717C247.385 30.7274 248.46 32.2753 249.164 34.0035C249.991 36.0991 250.396 38.3412 250.354 40.5977V61.9274H242.024V42.3189C242.05 41.0625 241.838 39.8127 241.4 38.6369C241.026 37.637 240.427 36.7393 239.651 36.0152C238.901 35.3238 238.02 34.7928 237.063 34.4537C236.095 34.1119 235.076 33.9447 234.052 33.9599V34.0035Z" fill="#222E63"/>
+  <path d="M307.271 47.5665L300.969 62H297.542L318.605 14H322.24L343.303 62H339.869L333.603 47.5665H307.271ZM308.525 44.6521H332.312L320.419 17.4973L308.525 44.6521Z" fill="#222E63"/>
+  <path d="M352.008 14H349.069V62H352.008V14Z" fill="#222E63"/>
+  <path d="M283.82 11.375V25.6956L284.296 30.5926C282.741 29.2441 281.015 28.1221 279.168 27.2577C277.339 26.408 275.356 25.9721 273.352 25.9789C271.095 25.9694 268.858 26.422 266.769 27.311C264.681 28.2 262.782 29.5078 261.182 31.1593C259.512 32.9162 258.194 34.9977 257.302 37.2844C256.41 39.5711 255.962 42.0179 255.983 44.4845C255.954 47.054 256.446 49.6012 257.427 51.9608C258.313 54.1488 259.587 56.145 261.182 57.846C262.769 59.4873 264.652 60.7884 266.724 61.675C268.866 62.6139 271.167 63.0958 273.492 63.0918C275.728 63.0876 277.939 62.6052 279.987 61.675C282.052 60.738 283.947 59.4431 285.592 57.846L285.796 57.6353L287.197 61.9947H291.982V11.375H283.82ZM274.62 55.3684C269.134 55.3684 264.678 50.4423 264.678 44.361C264.678 38.2796 269.134 33.3535 274.62 33.3535C280.106 33.3535 284.569 38.2796 284.569 44.361C284.569 50.4423 280.113 55.3684 274.62 55.3684Z" fill="#222E63"/>
+  <path d="M192.029 62.7483C181.734 62.7483 174.256 55.6923 174.256 44.7483C174.256 33.8043 181.54 26.7483 192.029 26.7483C202.259 26.7483 209.485 33.6171 209.485 44.0283C209.496 45.1688 209.409 46.3081 209.227 47.4339H183.332C183.777 52.5963 187.361 55.4979 191.835 55.4979C195.67 55.4979 197.785 53.6043 198.932 51.2715H208.589C206.711 57.6723 200.789 62.7483 192.029 62.7483ZM183.426 41.4507H200.244C200.115 36.8571 196.409 33.9555 191.799 33.9555C187.491 33.9555 184.1 36.6627 183.397 41.4507H183.426Z" fill="#222E63"/>
+</svg>`;
 
 function fmt(v, cur) {
   const s = symbols[cur] || '$';
   if (v < 0) return '-' + s + Math.abs(v).toLocaleString('en', {minimumFractionDigits: 0, maximumFractionDigits: 0});
   return s + v.toLocaleString('en', {minimumFractionDigits: 0, maximumFractionDigits: 0});
 }
+
+let partnerLogoData = null;
+
+function togglePartner() {
+  const on = document.getElementById('partnerToggle').classList.contains('active');
+  document.getElementById('partnerFields').style.display = on ? '' : 'none';
+  if (on && partnerLogoData) {
+    document.getElementById('brandHeader').classList.add('partner-mode');
+  } else if (!on) {
+    document.getElementById('brandHeader').classList.remove('partner-mode');
+  }
+}
+
+function handleLogoUpload(e) {
+  const file = e.target.files[0];
+  if (file) loadLogoFile(file);
+}
+
+function loadLogoFile(file) {
+  const reader = new FileReader();
+  reader.onload = function(e) {
+    partnerLogoData = e.target.result;
+    showLogoPreview(partnerLogoData, file.name);
+    document.getElementById('partnerLogoImg').src = partnerLogoData;
+    document.getElementById('brandHeader').classList.add('partner-mode');
+  };
+  reader.readAsDataURL(file);
+}
+
+function showLogoPreview(dataUrl, name) {
+  const container = document.getElementById('logoPreviewContent');
+  container.innerHTML = `
+    <img src="${dataUrl}" alt="Partner logo">
+    <span style="color:#a1a1aa; font-size:12px;">${name || 'Uploaded logo'}</span>
+    <button class="remove-btn" onclick="event.stopPropagation(); removeLogo()">✕ Remove</button>
+  `;
+}
+
+function removeLogo() {
+  partnerLogoData = null;
+  document.getElementById('partnerLogoFile').value = '';
+  document.getElementById('partnerLogoImg').src = '';
+  document.getElementById('brandHeader').classList.remove('partner-mode');
+  document.getElementById('logoPreviewContent').innerHTML = `
+    <div class="placeholder-icon">📁</div>
+    <span class="placeholder">Drop a logo here or click to upload</span>
+    <span class="placeholder" style="font-size:11px; margin-top:4px;">PNG, SVG, JPG - any size</span>
+  `;
+}
+
+// Drag & drop
+(function() {
+  const area = document.getElementById('logoUploadArea');
+  if (!area) return;
+  ['dragenter','dragover'].forEach(ev => area.addEventListener(ev, function(e) { e.preventDefault(); area.classList.add('dragover'); }));
+  ['dragleave','drop'].forEach(ev => area.addEventListener(ev, function(e) { e.preventDefault(); area.classList.remove('dragover'); }));
+  area.addEventListener('drop', function(e) {
+    const file = e.dataTransfer.files[0];
+    if (file && file.type.match(/image.*/)) loadLogoFile(file);
+  });
+})();
 
 function toggleAgency() {
   const m = document.getElementById('agencyModel').value;
@@ -220,16 +414,13 @@ function calc() {
 
   document.getElementById('inHouseField').style.display = inHouseOn ? '' : 'none';
 
-  // Current cost
   let agencyCost = 0;
   if (model === 'percent') agencyCost = spend * (pct / 100);
   else if (model === 'flat') agencyCost = flat;
   else if (model === 'both') agencyCost = flat + spend * (pct / 100);
   const currentTotal = agencyCost + inHouse;
 
-  // Blend cost (tiered)
   const platformFee = 150 * platformFeeRates[cur];
-  let blendPct = 0;
   let t1 = 0, t2 = 0, t3 = 0;
   if (spend <= 15000) {
     t1 = spend * 0.10;
@@ -241,34 +432,59 @@ function calc() {
     t2 = 35000 * 0.07;
     t3 = (spend - 50000) * 0.02;
   }
-  blendPct = t1 + t2 + t3;
-  const blendTotal = platformFee + blendPct;
+  const blendTotal = platformFee + t1 + t2 + t3;
   const effectiveRate = spend > 0 ? (blendTotal / spend * 100) : 0;
-
   const savings = currentTotal - blendTotal;
   const savingsPercent = currentTotal > 0 ? (savings / currentTotal * 100) : 0;
 
+  document.getElementById('resultAdSpend').textContent = fmt(Math.round(spend), cur);
   document.getElementById('currentCost').textContent = fmt(Math.round(currentTotal), cur);
   document.getElementById('currentCost').className = 'result-value';
   document.getElementById('currentSub').textContent = model === 'none' ? 'In-house only' : (agencyCost > 0 ? 'Agency: ' + fmt(Math.round(agencyCost), cur) + (inHouse > 0 ? ' + In-house: ' + fmt(Math.round(inHouse), cur) : '') : '');
-
   document.getElementById('blendCost').textContent = fmt(Math.round(blendTotal), cur);
   document.getElementById('blendSub').textContent = 'Platform fee + tiered %';
-
   document.getElementById('monthlySavings').textContent = fmt(Math.round(savings), cur);
   document.getElementById('monthlySavings').className = 'result-value ' + (savings >= 0 ? 'green' : 'red');
   document.getElementById('savingsPct').textContent = savings >= 0 ? Math.round(savingsPercent) + '% less than current setup' : 'Blend costs more at this spend/fee level';
-
   document.getElementById('annualSavings').textContent = fmt(Math.round(savings * 12), cur);
   document.getElementById('annualSavings').className = 'result-value ' + (savings >= 0 ? 'green' : 'red');
-
   document.getElementById('blendRate').textContent = effectiveRate.toFixed(1) + '%';
-
   document.getElementById('bPlatform').textContent = fmt(Math.round(platformFee), cur);
   document.getElementById('bTier1').textContent = fmt(Math.round(t1), cur);
   document.getElementById('bTier2').textContent = fmt(Math.round(t2), cur);
   document.getElementById('bTier3').textContent = fmt(Math.round(t3), cur);
   document.getElementById('bTotal').textContent = fmt(Math.round(blendTotal), cur);
+}
+
+function updateClientName() {
+  const name = document.getElementById('clientName').value.trim();
+  document.getElementById('printClientName').textContent = name || '-';
+}
+
+function printPDF() {
+  const name = document.getElementById('clientName').value.trim();
+  const partnerOn = document.getElementById('partnerToggle').classList.contains('active');
+  const printHeader = document.getElementById('printHeader');
+  
+  if (partnerOn && partnerLogoData) {
+    printHeader.innerHTML = `
+      <div class="print-header-partner">
+        <div class="print-partner-logo"><img src="${partnerLogoData}" alt="Partner logo"></div>
+        <div class="print-powered-by"><span>Powered by</span>${blendLogoSvgSmall}</div>
+      </div>
+      <div class="print-title-below">Cost Savings Calculator</div>`;
+  } else {
+    printHeader.innerHTML = `
+      <div class="print-header-default">
+        ${blendLogoSvgPrint}
+        <span class="print-title">Cost Savings Calculator</span>
+      </div>`;
+  }
+  
+  const origTitle = document.title;
+  document.title = name ? 'Blend AI - Cost Savings - ' + name : 'Blend AI - Cost Savings Calculator';
+  window.print();
+  document.title = origTitle;
 }
 
 toggleAgency();
