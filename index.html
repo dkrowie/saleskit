@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Blend AI - ROI & Cost Savings Calculator</title>
+<title>Blend AI - Return on Investment</title>
 <style>
   * { margin: 0; padding: 0; box-sizing: border-box; }
   body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #0f0f12; color: #e4e4e7; min-height: 100vh; padding: 40px 20px; }
@@ -167,10 +167,10 @@
   <div class="print-header" id="printHeader">
     <!-- Dynamically filled by JS based on partner mode -->
   </div>
-  <div class="print-title-below" id="printTitleBelow" style="display:none;">Cost Savings Calculator</div>
+  <div class="print-title-below" id="printTitleBelow" style="display:none;">Return on Investment</div>
 
-  <h1 class="no-print">Cost Savings Calculator</h1>
-  <p class="subtitle no-print">Compare your current ad management costs against Blend's pricing</p>
+  
+  
 
   <!-- Partner branding card -->
   <div class="card no-print">
@@ -279,7 +279,7 @@
   </div>
 
   <div class="card results" id="resultsCard">
-    <h2>Results</h2>
+    <h2>Return on Investment</h2>
     <div class="result-grid">
       <div class="result-item" style="grid-column: 1 / -1;">
         <div class="result-label">Monthly Ad Spend</div>
@@ -535,13 +535,13 @@ function printPDF() {
     printHeader.innerHTML = `
       <div class="print-header-default">
         ${blendLogoSvgPrint}
-        <span class="print-title">Cost Savings Calculator</span>
+        <span class="print-title">Return on Investment</span>
       </div>`;
     document.getElementById('printTitleBelow').style.cssText = 'display:none !important;';
   }
   
   const origTitle = document.title;
-  document.title = name ? 'Blend AI - Cost Savings - ' + name : 'Blend AI - Cost Savings Calculator';
+  document.title = name ? 'Blend AI - ROI - ' + name : 'Blend AI - Return on Investment';
   window.print();
   document.title = origTitle;
 }
