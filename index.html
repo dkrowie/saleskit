@@ -490,7 +490,7 @@ function calc() {
   // Update note
   const noteEl = document.getElementById('pricingNote');
   if (customOn) {
-    noteEl.textContent = 'Custom pricing: $150 USD/mo platform fee + ' + (r1*100) + '% on first $15k, ' + (r2*100) + '% on $15-50k, ' + (r3*100) + '% on $50k+. Month-to-month, no contracts.';
+    noteEl.textContent = 'Custom pricing: $150 USD/mo platform fee + ' + parseFloat((r1*100).toFixed(2)) + '% on first $15k, ' + parseFloat((r2*100).toFixed(2)) + '% on $15-50k, ' + parseFloat((r3*100).toFixed(2)) + '% on $50k+. Month-to-month, no contracts.';
   } else {
     noteEl.textContent = 'Blend pricing: $150 USD/mo platform fee + tiered % of ad spend (10% on first $15k, 7% on $15-50k, 2% on $50k+). Month-to-month, no contracts.';
   }
@@ -507,9 +507,9 @@ function calc() {
   
   // Update tier labels to show actual rates
   const tierLabels = document.querySelectorAll('.breakdown-row .label');
-  tierLabels[1].innerHTML = 'Blend usage fee (first $15k @ ' + (r1*100) + '%)';
-  tierLabels[2].innerHTML = 'Blend usage fee ($15k-$50k @ ' + (r2*100) + '%)';
-  tierLabels[3].innerHTML = 'Blend usage fee ($50k+ @ ' + (r3*100) + '%)';
+  tierLabels[1].innerHTML = 'Blend usage fee (first $15k @ ' + parseFloat((r1*100).toFixed(2)) + '%)';
+  tierLabels[2].innerHTML = 'Blend usage fee ($15k-$50k @ ' + parseFloat((r2*100).toFixed(2)) + '%)';
+  tierLabels[3].innerHTML = 'Blend usage fee ($50k+ @ ' + parseFloat((r3*100).toFixed(2)) + '%)';
   document.getElementById('bTotal').textContent = fmt(Math.round(blendTotal), cur);
 }
 
