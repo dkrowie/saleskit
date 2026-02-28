@@ -90,7 +90,6 @@
     .print-header-partner .print-powered-by { display: flex; align-items: center; justify-content: center; gap: 6px; color: #888; font-size: 11px; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 0; }
     .print-header-partner .print-powered-by svg { height: 18px; width: auto; }
     .print-title-below { font-size: 20px; font-weight: 700; color: #1a1a1a; margin-top: 14px; text-align: center; }
-    #printTitleBelow { display: none; }
     
     .print-prepared { display: block !important; font-size: 14px; color: #555; margin-bottom: 20px; }
     .print-prepared strong { color: #1a1a1a; }
@@ -474,14 +473,14 @@ function printPDF() {
         <div class="print-partner-logo"><img src="${partnerLogoData}" alt="Partner logo"></div>
         <div class="print-powered-by"><span>Powered by</span>${blendLogoSvgSmall}</div>
       </div>`;
-    document.getElementById('printTitleBelow').style.display = 'block';
+    document.getElementById('printTitleBelow').style.cssText = 'display:block !important;';
   } else {
     printHeader.innerHTML = `
       <div class="print-header-default">
         ${blendLogoSvgPrint}
         <span class="print-title">Cost Savings Calculator</span>
       </div>`;
-    document.getElementById('printTitleBelow').style.display = 'none';
+    document.getElementById('printTitleBelow').style.cssText = 'display:none !important;';
   }
   
   const origTitle = document.title;
