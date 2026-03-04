@@ -668,7 +668,6 @@ function calc() {
   if (showCustomSavings) {
     document.getElementById('standardCostRef').textContent = fmt(Math.round(standardTotal), cur);
     document.getElementById('yourFeesRef').textContent = fmt(Math.round(blendTotal), cur);
-    document.getElementById('yourMonthlyCostRef').textContent = fmt(Math.round(blendTotal), cur);
     document.getElementById('customSavingsAmt').textContent = '-' + fmt(Math.round(customSavings), cur);
   }
 
