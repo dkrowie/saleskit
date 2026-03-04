@@ -80,6 +80,7 @@
   .savings-row .savings-value { font-size: 20px; font-weight: 700; color: #34d399; }
   .waive-row { display: flex; align-items: center; gap: 10px; margin-top: 16px; }
   .waive-row label { margin-bottom: 0; cursor: pointer; font-size: 14px; }
+  .annual-hero { margin-top: 20px; padding: 24px 20px; background: linear-gradient(135deg, #312e81, #1e1b4b); border: 1px solid rgba(99,102,241,0.4); border-radius: 10px; }
   .impact { background: linear-gradient(135deg, #0c2e1e, #0f3d2e); border: 1px solid #166534; }
   .impact h2 { color: #34d399; }
   .impact .result-label { color: #34d399; }
@@ -163,6 +164,11 @@
     .savings-row { background: rgba(5,150,105,0.08) !important; border-color: rgba(5,150,105,0.3) !important; padding: 8px 12px !important; margin-top: 8px !important; }
     .savings-row .savings-label { color: #059669 !important; font-size: 10px !important; }
     .savings-row .savings-value { font-size: 16px !important; color: #059669 !important; }
+    .annual-hero { background: linear-gradient(135deg, #eef0ff, #e0e4ff) !important; border-color: #6366f1 !important; padding: 14px 12px !important; margin-top: 10px !important; }
+    .annual-hero div[style*="font-size:42px"] { font-size: 28px !important; color: #1a1a1a !important; }
+    .annual-hero div[style*="font-size:11px"] { color: #4f46e5 !important; }
+    .annual-hero div[style*="font-size:13px"] { color: #555 !important; }
+    .annual-hero strong { color: #1a1a1a !important; }
     .savings-row div[style*="border-bottom"] { border-bottom-color: #ddd !important; }
     .savings-row span[style*="color:#a1a1aa"] { color: #555 !important; }
     .savings-row span[style*="color:#e4e4e7"] { color: #1a1a1a !important; }
@@ -366,14 +372,6 @@
         <div class="result-value green" id="monthlySavings">-</div>
         <div class="result-sub" id="savingsPct"></div>
       </div>
-      <div class="result-item">
-        <div class="result-label">Annual Savings</div>
-        <div class="result-value green" id="annualSavings">-</div>
-      </div>
-      <div class="result-item">
-        <div class="result-label">Blend Fee Rate (Effective)</div>
-        <div class="result-value" id="blendRate">-</div>
-      </div>
     </div>
 
     <div class="breakdown">
@@ -397,6 +395,14 @@
       <div style="display:flex; justify-content:space-between; padding:8px 0 0; margin-top:2px;">
         <span class="savings-label" style="margin-bottom:0;">Custom Fee Savings</span>
         <span class="savings-value" id="customSavingsAmt">-</span>
+      </div>
+    </div>
+
+    <div class="annual-hero" id="annualHero">
+      <div style="text-align:center;">
+        <div style="font-size:11px; color:#818cf8; text-transform:uppercase; letter-spacing:1px; margin-bottom:6px;">Projected Annual Savings</div>
+        <div style="font-size:42px; font-weight:800; color:#fff; line-height:1;" id="annualSavings">-</div>
+        <div style="font-size:13px; color:#a1a1aa; margin-top:8px;">Effective Blend fee rate: <strong style="color:#fff;" id="blendRate">-</strong></div>
       </div>
     </div>
 
