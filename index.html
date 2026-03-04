@@ -74,6 +74,12 @@
   .custom-rates .rate-field label { font-size: 12px; }
   .custom-rates .rate-field input { padding: 10px 12px; font-size: 15px; }
   .custom-badge { display: inline-block; padding: 2px 8px; background: #f59e0b; color: #000; border-radius: 4px; font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; margin-left: 8px; vertical-align: middle; }
+  .strike { text-decoration: line-through; color: #f87171 !important; opacity: 0.7; font-size: 0.85em; margin-right: 8px; }
+  .savings-row { background: rgba(52,211,153,0.08); border: 1px solid rgba(52,211,153,0.2); border-radius: 8px; padding: 12px 16px; margin-top: 16px; }
+  .savings-row .savings-label { font-size: 12px; color: #34d399; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 4px; }
+  .savings-row .savings-value { font-size: 20px; font-weight: 700; color: #34d399; }
+  .waive-row { display: flex; align-items: center; gap: 10px; margin-top: 16px; }
+  .waive-row label { margin-bottom: 0; cursor: pointer; font-size: 14px; }
   .impact { background: linear-gradient(135deg, #0c2e1e, #0f3d2e); border: 1px solid #166534; }
   .impact h2 { color: #34d399; }
   .impact .result-label { color: #34d399; }
@@ -153,6 +159,13 @@
     .print-header { margin-bottom: 4px !important; padding-bottom: 8px !important; }
     .print-prepared { font-size: 11px !important; margin-bottom: 6px !important; }
     .version { margin-top: 4px !important; font-size: 8px !important; }
+    .strike { color: #dc2626 !important; }
+    .savings-row { background: rgba(5,150,105,0.08) !important; border-color: rgba(5,150,105,0.3) !important; padding: 8px 12px !important; margin-top: 8px !important; }
+    .savings-row .savings-label { color: #059669 !important; font-size: 10px !important; }
+    .savings-row .savings-value { font-size: 16px !important; color: #059669 !important; }
+    .savings-row div[style*="border-bottom"] { border-bottom-color: #ddd !important; }
+    .savings-row span[style*="color:#a1a1aa"] { color: #555 !important; }
+    .savings-row span[style*="color:#e4e4e7"] { color: #1a1a1a !important; }
   }
 </style>
 </head>
@@ -324,6 +337,10 @@
           <input type="number" id="customTier3" value="2" min="0" max="100" step="0.5" oninput="calc()">
         </div>
       </div>
+      <div class="waive-row">
+        <input type="checkbox" id="waivePlatformFee" onchange="calc()" style="width:18px; height:18px; cursor:pointer;">
+        <label onclick="document.getElementById('waivePlatformFee').click()">Waive $150 platform fee</label>
+      </div>
     </div>
   </div>
 
@@ -337,7 +354,7 @@
       <div class="result-item">
         <div class="result-label">Current Monthly Cost</div>
         <div class="result-value" id="currentCost">-</div>
-        <div class="result-sub" id="currentSub"></div>
+        <div class="result-sub no-print" id="currentSub"></div>
       </div>
       <div class="result-item">
         <div class="result-label">Blend Monthly Cost</div>
@@ -345,7 +362,7 @@
         <div class="result-sub" id="blendSub"></div>
       </div>
       <div class="result-item highlight">
-        <div class="result-label">Monthly Savings with Blend</div>
+        <div class="result-label">Monthly Savings with Blend vs. Current Solution</div>
         <div class="result-value green" id="monthlySavings">-</div>
         <div class="result-sub" id="savingsPct"></div>
       </div>
@@ -360,11 +377,30 @@
     </div>
 
     <div class="breakdown">
-      <div class="breakdown-row"><span class="label">Blend platform fee</span><span class="value" id="bPlatform">-</span></div>
-      <div class="breakdown-row"><span class="label">Blend usage fee (first $15k @ 10%)</span><span class="value" id="bTier1">-</span></div>
-      <div class="breakdown-row"><span class="label">Blend usage fee ($15k-$50k @ 7%)</span><span class="value" id="bTier2">-</span></div>
-      <div class="breakdown-row"><span class="label">Blend usage fee ($50k+ @ 2%)</span><span class="value" id="bTier3">-</span></div>
+      <div class="breakdown-row"><span class="label" id="bPlatformLabel">Blend platform fee</span><span class="value" id="bPlatform">-</span></div>
+      <div class="breakdown-row"><span class="label" id="bTier1Label">Blend usage fee (first $15k @ 10%)</span><span class="value" id="bTier1">-</span></div>
+      <div class="breakdown-row"><span class="label" id="bTier2Label">Blend usage fee ($15k-$50k @ 7%)</span><span class="value" id="bTier2">-</span></div>
+      <div class="breakdown-row"><span class="label" id="bTier3Label">Blend usage fee ($50k+ @ 2%)</span><span class="value" id="bTier3">-</span></div>
       <div class="breakdown-row"><span class="label"><strong>Total Blend cost</strong></span><span class="value" id="bTotal">-</span></div>
+    </div>
+
+    <div class="savings-row" id="customSavingsRow" style="display:none;">
+      <div style="display:flex; justify-content:space-between; padding:6px 0; font-size:13px; border-bottom:1px solid rgba(255,255,255,0.1);">
+        <span style="color:#a1a1aa;">Standard Blend Fees</span>
+        <span style="color:#a1a1aa;" id="standardCostRef">-</span>
+      </div>
+      <div style="display:flex; justify-content:space-between; padding:6px 0; font-size:13px; border-bottom:1px solid rgba(255,255,255,0.1);">
+        <span style="color:#e4e4e7; font-weight:600;">Custom Pricing</span>
+        <span style="color:#e4e4e7; font-weight:600;" id="yourFeesRef">-</span>
+      </div>
+      <div style="display:flex; justify-content:space-between; padding:6px 0; font-size:13px; border-bottom:1px solid rgba(52,211,153,0.2);">
+        <span style="color:#a1a1aa;">Blend Monthly Cost</span>
+        <span style="color:#e4e4e7; font-weight:600;" id="yourMonthlyCostRef">-</span>
+      </div>
+      <div style="display:flex; justify-content:space-between; padding:8px 0 0; margin-top:2px;">
+        <span class="savings-label" style="margin-bottom:0;">Custom Fee Savings</span>
+        <span class="savings-value" id="customSavingsAmt">-</span>
+      </div>
     </div>
 
     <p class="note" id="pricingNote">Blend pricing: $150 USD/mo platform fee + tiered % of ad spend (10% on first $15k, 7% on $15-50k, 2% on $50k+). Month-to-month, no contracts.</p>
@@ -401,7 +437,7 @@
   </div>
 
   <button class="print-btn" onclick="printPDF()">📄 Save as PDF</button>
-  <div class="version">v4</div>
+  <div class="version">v5</div>
 </div>
 
 <script>
@@ -545,8 +581,10 @@ function calc() {
   else if (model === 'both') agencyCost = flat + spend * (pct / 100);
   const currentTotal = agencyCost + inHouse;
 
-  const platformFee = 150 * platformFeeRates[cur];
+  const standardPlatformFee = 150 * platformFeeRates[cur];
   const customOn = document.getElementById('customRatesToggle').classList.contains('active');
+  const waiveFee = customOn && document.getElementById('waivePlatformFee').checked;
+  const platformFee = waiveFee ? 0 : standardPlatformFee;
   const r1 = customOn ? (parseFloat(document.getElementById('customTier1').value) || 0) / 100 : 0.10;
   const r2 = customOn ? (parseFloat(document.getElementById('customTier2').value) || 0) / 100 : 0.07;
   const r3 = customOn ? (parseFloat(document.getElementById('customTier3').value) || 0) / 100 : 0.02;
@@ -583,21 +621,59 @@ function calc() {
   }
   document.getElementById('monthlySavings').textContent = fmt(Math.round(savings), cur);
   document.getElementById('monthlySavings').className = 'result-value ' + (savings >= 0 ? 'green' : 'red');
-  document.getElementById('savingsPct').textContent = savings >= 0 ? Math.round(savingsPercent) + '% less than current setup' : 'Blend costs more at this spend/fee level';
+  document.getElementById('savingsPct').textContent = savings >= 0 ? Math.round(savingsPercent) + '% less than current solution' : 'Blend costs more at this spend/fee level';
   document.getElementById('annualSavings').textContent = fmt(Math.round(savings * 12), cur);
   document.getElementById('annualSavings').className = 'result-value ' + (savings >= 0 ? 'green' : 'red');
   document.getElementById('blendRate').textContent = effectiveRate.toFixed(1) + '%';
-  document.getElementById('bPlatform').textContent = fmt(Math.round(platformFee), cur);
-  document.getElementById('bTier1').textContent = fmt(Math.round(t1), cur);
-  document.getElementById('bTier2').textContent = fmt(Math.round(t2), cur);
-  document.getElementById('bTier3').textContent = fmt(Math.round(t3), cur);
-  
-  // Update tier labels to show actual rates
-  const tierLabels = document.querySelectorAll('.breakdown-row .label');
-  tierLabels[1].innerHTML = 'Blend usage fee (first $15k @ ' + parseFloat((r1*100).toFixed(2)) + '%)';
-  tierLabels[2].innerHTML = 'Blend usage fee ($15k-$50k @ ' + parseFloat((r2*100).toFixed(2)) + '%)';
-  tierLabels[3].innerHTML = 'Blend usage fee ($50k+ @ ' + parseFloat((r3*100).toFixed(2)) + '%)';
+  // Platform fee with strikethrough if waived
+  if (waiveFee) {
+    document.getElementById('bPlatform').innerHTML = '<span class="strike">' + fmt(Math.round(standardPlatformFee), cur) + '</span> ' + fmt(0, cur);
+    document.getElementById('bPlatformLabel').innerHTML = 'Blend platform fee <span style="color:#34d399; font-size:11px;">(waived)</span>';
+  } else {
+    document.getElementById('bPlatform').textContent = fmt(Math.round(platformFee), cur);
+    document.getElementById('bPlatformLabel').textContent = 'Blend platform fee';
+  }
+
+  // Calculate standard costs for comparison
+  let st1 = 0, st2 = 0, st3 = 0;
+  if (spend <= 15000) { st1 = spend * 0.10; }
+  else if (spend <= 50000) { st1 = 15000 * 0.10; st2 = (spend - 15000) * 0.07; }
+  else { st1 = 15000 * 0.10; st2 = 35000 * 0.07; st3 = (spend - 50000) * 0.02; }
+  const standardTotal = standardPlatformFee + st1 + st2 + st3;
+
+  // Tier fees with strikethrough if custom rates differ
+  if (customOn && r1 !== 0.10) {
+    document.getElementById('bTier1').innerHTML = '<span class="strike">' + fmt(Math.round(st1), cur) + '</span> ' + fmt(Math.round(t1), cur);
+  } else {
+    document.getElementById('bTier1').textContent = fmt(Math.round(t1), cur);
+  }
+  if (customOn && r2 !== 0.07) {
+    document.getElementById('bTier2').innerHTML = '<span class="strike">' + fmt(Math.round(st2), cur) + '</span> ' + fmt(Math.round(t2), cur);
+  } else {
+    document.getElementById('bTier2').textContent = fmt(Math.round(t2), cur);
+  }
+  if (customOn && r3 !== 0.02) {
+    document.getElementById('bTier3').innerHTML = '<span class="strike">' + fmt(Math.round(st3), cur) + '</span> ' + fmt(Math.round(t3), cur);
+  } else {
+    document.getElementById('bTier3').textContent = fmt(Math.round(t3), cur);
+  }
+
+  // Update tier labels
+  document.getElementById('bTier1Label').innerHTML = 'Blend usage fee (first $15k @ ' + (customOn && r1 !== 0.10 ? '<span class="strike">10%</span> ' : '') + parseFloat((r1*100).toFixed(2)) + '%)';
+  document.getElementById('bTier2Label').innerHTML = 'Blend usage fee ($15k-$50k @ ' + (customOn && r2 !== 0.07 ? '<span class="strike">7%</span> ' : '') + parseFloat((r2*100).toFixed(2)) + '%)';
+  document.getElementById('bTier3Label').innerHTML = 'Blend usage fee ($50k+ @ ' + (customOn && r3 !== 0.02 ? '<span class="strike">2%</span> ' : '') + parseFloat((r3*100).toFixed(2)) + '%)';
   document.getElementById('bTotal').textContent = fmt(Math.round(blendTotal), cur);
+
+  // Custom savings row
+  const customSavings = standardTotal - blendTotal;
+  const showCustomSavings = customOn && Math.abs(customSavings) > 0.5;
+  document.getElementById('customSavingsRow').style.display = showCustomSavings ? '' : 'none';
+  if (showCustomSavings) {
+    document.getElementById('standardCostRef').textContent = fmt(Math.round(standardTotal), cur);
+    document.getElementById('yourFeesRef').textContent = fmt(Math.round(blendTotal), cur);
+    document.getElementById('yourMonthlyCostRef').textContent = fmt(Math.round(blendTotal), cur);
+    document.getElementById('customSavingsAmt').textContent = '-' + fmt(Math.round(customSavings), cur);
+  }
 
   // ROAS uplift projection
   const roasOn = document.getElementById('roasToggle').classList.contains('active');
