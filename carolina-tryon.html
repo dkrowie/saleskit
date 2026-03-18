@@ -1,0 +1,359 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Carolina - Virtual Try-On</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600&family=Work+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<script type="module" src="https://cdn.jsdelivr.net/npm/@gradio/client@1.8.0/dist/index.min.js"></script>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{--cream:#F5F0EB;--tan:#8B7355;--dark:#2C2C2C;--gold:#C4956A;--light-tan:#D4C5B2}
+body{font-family:'Work Sans',sans-serif;background:var(--cream);color:var(--dark);min-height:100vh;-webkit-font-smoothing:antialiased}
+.container{max-width:480px;margin:0 auto;padding:16px}
+
+.header{text-align:center;padding:24px 0 16px}
+.header h1{font-family:'Cormorant Garamond',serif;font-size:32px;font-weight:500;letter-spacing:4px;color:var(--dark)}
+.header p{font-size:13px;color:var(--tan);letter-spacing:2px;margin-top:4px;font-weight:300}
+
+.upload-section{text-align:center;padding:32px 20px;border:2px dashed var(--light-tan);border-radius:16px;margin-bottom:24px;transition:all .3s;cursor:pointer;position:relative}
+.upload-section:hover,.upload-section.dragover{border-color:var(--gold);background:rgba(196,149,106,.05)}
+.upload-section.has-photo{border:none;padding:0;cursor:default}
+.upload-icon{font-size:48px;margin-bottom:12px;opacity:.6}
+.upload-label{font-family:'Cormorant Garamond',serif;font-size:20px;color:var(--dark);margin-bottom:8px}
+.upload-hint{font-size:12px;color:var(--tan);font-weight:300}
+.upload-section input[type="file"]{display:none}
+.user-photo-wrap{position:relative;border-radius:16px;overflow:hidden}
+.user-photo{width:100%;max-height:300px;object-fit:cover;border-radius:16px;display:block}
+.change-photo-btn{position:absolute;bottom:12px;right:12px;background:rgba(44,44,44,.7);color:#fff;border:none;padding:8px 14px;border-radius:20px;font-size:12px;font-family:'Work Sans',sans-serif;cursor:pointer;backdrop-filter:blur(4px)}
+
+.catalogue-title{font-family:'Cormorant Garamond',serif;font-size:22px;text-align:center;margin-bottom:16px;color:var(--dark)}
+.catalogue{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:24px}
+.product-card{background:#fff;border-radius:12px;overflow:hidden;cursor:pointer;transition:transform .2s,box-shadow .2s;position:relative}
+.product-card:hover{transform:translateY(-2px);box-shadow:0 8px 24px rgba(139,115,85,.15)}
+.product-card.selected{outline:3px solid var(--gold)}
+.product-card img{width:100%;aspect-ratio:3/4;object-fit:cover;display:block}
+.product-info{padding:10px 12px}
+.product-name{font-size:12px;font-weight:400;line-height:1.3;margin-bottom:4px;color:var(--dark)}
+.product-price{font-size:13px;font-weight:500;color:var(--gold)}
+.product-price .was{text-decoration:line-through;color:#999;font-weight:300;font-size:11px;margin-left:4px}
+.product-fabric{font-size:10px;color:var(--tan);margin-top:2px;font-weight:300}
+
+.tryon-btn{width:100%;padding:16px;background:var(--dark);color:#fff;border:none;border-radius:12px;font-family:'Work Sans',sans-serif;font-size:15px;font-weight:400;letter-spacing:1px;cursor:pointer;transition:background .3s;margin-bottom:16px}
+.tryon-btn:disabled{opacity:.4;cursor:not-allowed}
+.tryon-btn:not(:disabled):hover{background:var(--tan)}
+
+.loading-overlay{position:fixed;inset:0;background:rgba(245,240,235,.95);display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:100;opacity:0;pointer-events:none;transition:opacity .3s}
+.loading-overlay.show{opacity:1;pointer-events:all}
+.spinner{width:48px;height:48px;border:3px solid var(--light-tan);border-top-color:var(--gold);border-radius:50%;animation:spin 1s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+.loading-text{margin-top:20px;font-family:'Cormorant Garamond',serif;font-size:18px;color:var(--dark)}
+.loading-sub{margin-top:8px;font-size:12px;color:var(--tan);font-weight:300;text-align:center;padding:0 20px}
+
+.result-view{display:none;text-align:center}
+.result-view.show{display:block}
+.result-image{width:100%;max-height:70vh;object-fit:contain;border-radius:16px;margin-bottom:16px;box-shadow:0 8px 32px rgba(0,0,0,.1)}
+.result-product-name{font-family:'Cormorant Garamond',serif;font-size:20px;margin-bottom:12px}
+.result-actions{display:flex;gap:10px;margin-bottom:16px}
+.result-actions button,.result-actions a{flex:1;padding:14px;border-radius:12px;font-family:'Work Sans',sans-serif;font-size:14px;text-decoration:none;text-align:center;cursor:pointer;transition:all .2s}
+.btn-shop{background:var(--gold);color:#fff;border:none}
+.btn-shop:hover{background:var(--tan)}
+.btn-another{background:#fff;color:var(--dark);border:1px solid var(--light-tan)}
+.btn-another:hover{background:var(--cream)}
+
+.error-msg{background:#FFEBEE;color:#C62828;padding:14px;border-radius:12px;font-size:13px;margin-bottom:16px;display:none;line-height:1.4}
+.error-msg.show{display:block}
+
+.footer{text-align:center;padding:20px 0;font-size:11px;color:var(--tan);font-weight:300}
+
+.main-view{transition:opacity .3s}
+.main-view.hidden{display:none}
+
+.catalogue .product-card:last-child:nth-child(odd){grid-column:1/-1}
+.catalogue .product-card:last-child:nth-child(odd) img{aspect-ratio:16/9;max-height:200px}
+</style>
+</head>
+<body>
+
+<div class="container">
+  <div class="header">
+    <h1>CAROLINA</h1>
+    <p>Virtual Try-On</p>
+  </div>
+
+  <div class="main-view" id="mainView">
+    <div class="upload-section" id="uploadSection" onclick="document.getElementById('fileInput').click()">
+      <div class="upload-icon">📸</div>
+      <div class="upload-label">Upload Your Photo</div>
+      <div class="upload-hint">Take a selfie or choose from your camera roll</div>
+      <input type="file" id="fileInput" accept="image/*" capture="environment">
+    </div>
+
+    <div class="catalogue-title">Select a Style</div>
+    <div class="catalogue" id="catalogue"></div>
+
+    <div class="error-msg" id="errorMsg"></div>
+
+    <button class="tryon-btn" id="tryonBtn" disabled onclick="runTryOn()">Try It On</button>
+  </div>
+
+  <div class="result-view" id="resultView">
+    <img class="result-image" id="resultImage" src="" alt="Try-on result">
+    <div class="result-product-name" id="resultName"></div>
+    <div class="result-actions">
+      <button class="btn-another" onclick="backToMain()">Try Another</button>
+      <a class="btn-shop" id="resultShopLink" href="#" target="_blank">Shop This Item</a>
+    </div>
+  </div>
+
+  <div class="footer">
+    Powered by AI · Results are approximate<br>
+    &copy; Carolina · Handmade in Colombia
+  </div>
+</div>
+
+<div class="loading-overlay" id="loadingOverlay">
+  <div class="spinner"></div>
+  <div class="loading-text">Creating your look...</div>
+  <div class="loading-sub">This can take 30-60 seconds using the free AI model. Hang tight!</div>
+</div>
+
+<script type="module">
+import { Client, handle_file } from "https://cdn.jsdelivr.net/npm/@gradio/client@1.8.0/dist/index.min.js";
+
+const PRODUCTS = [
+  {
+    name: 'Valeria Embroidered Dress',
+    desc: 'Navy embroidered mid sleeve cotton dress with v-neckline',
+    price: '$229.99',
+    was: null,
+    fabric: '100% Cotton',
+    image: 'https://cdn.shopify.com/s/files/1/0500/2865/files/Valeria-Embroidered-Mid-Sleeve-Midi-Dress-Navy_1.webp?v=1759461370',
+    url: 'https://carolina.net.au/products/valeria-embroidered-mid-sleeve-dress-in-navy'
+  },
+  {
+    name: 'Bianca Top - Irene Print',
+    desc: 'Short sleeve round neck top with earthy stripe print',
+    price: '$169.99',
+    was: null,
+    fabric: 'Rayon Viscose Blend',
+    image: 'https://cdn.shopify.com/s/files/1/0500/2865/files/Bianca-Top-Irene-Print.webp?v=1765346186',
+    url: 'https://carolina.net.au/products/bianca-short-sleeve-top-irene-print-with-round-neck'
+  },
+  {
+    name: 'Mari Pure Linen Dress',
+    desc: 'Navy pure linen slip-on dress with flutter sleeves',
+    price: '$89.99',
+    was: '$279.99',
+    fabric: '100% Linen',
+    image: 'https://cdn.shopify.com/s/files/1/0500/2865/files/16--Valeria-Embroidered-Mid-Sleeve-Dress-in-Navy.webp?v=1759124071',
+    url: 'https://carolina.net.au/products/mari-pure-linen-dress-navy'
+  },
+  {
+    name: 'Bianca Round Neck Top',
+    desc: 'Oversized relaxed fit short sleeve top',
+    price: '$169.99',
+    was: null,
+    fabric: 'Oversized Relaxed Fit',
+    image: 'https://cdn.shopify.com/s/files/1/0500/2865/files/14.Bianca-Short-Sleeve-Top-Irene-Print-with-Round-Neck.webp?v=1761730481',
+    url: 'https://carolina.net.au/products/bianca-short-sleeve-top-irene-print-with-round-neck'
+  },
+  {
+    name: 'Valeria Dress - Embroidered Detail',
+    desc: 'Navy cotton dress with white embroidered details and mandarin collar',
+    price: '$229.99',
+    was: null,
+    fabric: 'V-Neck, Mandarin Collar',
+    image: 'https://cdn.shopify.com/s/files/1/0500/2865/files/18.-Valeria-Embroidered-Mid-Sleeve-Dress-in-Navy.webp?v=1759452172',
+    url: 'https://carolina.net.au/products/valeria-embroidered-mid-sleeve-dress-in-navy'
+  }
+];
+
+let userPhotoBlob = null;
+let selectedProduct = null;
+
+// Make functions global for onclick handlers
+window.selectProduct = selectProduct;
+window.runTryOn = runTryOn;
+window.backToMain = backToMain;
+window.processImage = processImage;
+
+function init() {
+  renderCatalogue();
+  setupUpload();
+  updateButton();
+}
+
+function setupUpload() {
+  const input = document.getElementById('fileInput');
+  const section = document.getElementById('uploadSection');
+
+  input.addEventListener('change', (e) => {
+    if (e.target.files[0]) processImage(e.target.files[0]);
+  });
+
+  section.addEventListener('dragover', (e) => { e.preventDefault(); section.classList.add('dragover'); });
+  section.addEventListener('dragleave', () => section.classList.remove('dragover'));
+  section.addEventListener('drop', (e) => {
+    e.preventDefault();
+    section.classList.remove('dragover');
+    if (e.dataTransfer.files[0]) processImage(e.dataTransfer.files[0]);
+  });
+}
+
+function processImage(file) {
+  const reader = new FileReader();
+  reader.onload = (e) => {
+    const img = new Image();
+    img.onload = () => {
+      const canvas = document.createElement('canvas');
+      const maxW = 1024;
+      let w = img.width, h = img.height;
+      if (w > maxW) { h = h * maxW / w; w = maxW; }
+      canvas.width = w;
+      canvas.height = h;
+      canvas.getContext('2d').drawImage(img, 0, 0, w, h);
+      canvas.toBlob((blob) => {
+        userPhotoBlob = blob;
+        showUserPhoto(URL.createObjectURL(blob));
+        updateButton();
+      }, 'image/jpeg', 0.85);
+    };
+    img.src = e.target.result;
+  };
+  reader.readAsDataURL(file);
+}
+
+function showUserPhoto(src) {
+  const section = document.getElementById('uploadSection');
+  section.classList.add('has-photo');
+  section.onclick = null;
+  section.innerHTML = `
+    <div class="user-photo-wrap">
+      <img class="user-photo" src="${src}" alt="Your photo">
+      <button class="change-photo-btn" onclick="event.stopPropagation();document.getElementById('fileInput2').click()">Change Photo</button>
+      <input type="file" id="fileInput2" accept="image/*" capture="environment" style="display:none" onchange="if(this.files[0])processImage(this.files[0])">
+    </div>`;
+}
+
+function renderCatalogue() {
+  const grid = document.getElementById('catalogue');
+  grid.innerHTML = PRODUCTS.map((p, i) => `
+    <div class="product-card" data-idx="${i}" onclick="selectProduct(${i})">
+      <img src="${p.image}" alt="${p.name}" loading="lazy">
+      <div class="product-info">
+        <div class="product-name">${p.name}</div>
+        <div class="product-price">${p.price}${p.was ? `<span class="was">${p.was}</span>` : ''}</div>
+        <div class="product-fabric">${p.fabric}</div>
+      </div>
+    </div>
+  `).join('');
+}
+
+function selectProduct(idx) {
+  selectedProduct = idx;
+  document.querySelectorAll('.product-card').forEach((c, i) => {
+    c.classList.toggle('selected', i === idx);
+  });
+  updateButton();
+}
+
+function updateButton() {
+  const btn = document.getElementById('tryonBtn');
+  btn.disabled = !userPhotoBlob || selectedProduct === null;
+  if (!userPhotoBlob) {
+    btn.textContent = 'Upload a Photo First';
+  } else if (selectedProduct === null) {
+    btn.textContent = 'Select a Style';
+  } else {
+    btn.textContent = 'Try It On';
+  }
+}
+
+async function runTryOn() {
+  const product = PRODUCTS[selectedProduct];
+  showLoading(true);
+  hideError();
+
+  try {
+    // Connect to IDM-VTON on HuggingFace
+    const client = await Client.connect("yisol/IDM-VTON");
+
+    // Fetch the garment image as a blob
+    const garmentResponse = await fetch(product.image);
+    const garmentBlob = await garmentResponse.blob();
+
+    // Call the /tryon endpoint
+    const result = await client.predict("/tryon", {
+      dict: { "background": userPhotoBlob, "layers": [], "composite": null },
+      garm_img: garmentBlob,
+      garment_des: product.desc,
+      is_checked: true,       // auto-mask
+      is_checked_crop: false,  // no crop
+      denoise_steps: 30,
+      seed: 42
+    });
+
+    // Result should contain the output image
+    const outputData = result.data[0];
+    let imageUrl;
+
+    if (outputData && outputData.url) {
+      imageUrl = outputData.url;
+    } else if (outputData && outputData.path) {
+      imageUrl = outputData.path;
+    } else if (typeof outputData === 'string') {
+      imageUrl = outputData;
+    } else {
+      throw new Error('Unexpected response format from the AI model.');
+    }
+
+    showResult(imageUrl, product);
+
+  } catch (err) {
+    console.error('Try-on error:', err);
+    let msg = err.message || 'Something went wrong.';
+    if (msg.includes('queue') || msg.includes('Queue')) {
+      msg = 'The free AI model is busy right now. Please try again in a minute.';
+    } else if (msg.includes('Could not connect')) {
+      msg = 'Could not reach the AI model. The free service may be temporarily down. Try again shortly.';
+    }
+    showError(msg);
+  } finally {
+    showLoading(false);
+  }
+}
+
+function showLoading(show) {
+  document.getElementById('loadingOverlay').classList.toggle('show', show);
+}
+
+function showError(msg) {
+  const el = document.getElementById('errorMsg');
+  el.textContent = msg;
+  el.classList.add('show');
+}
+
+function hideError() {
+  document.getElementById('errorMsg').classList.remove('show');
+}
+
+function showResult(imageUrl, product) {
+  document.getElementById('mainView').classList.add('hidden');
+  const rv = document.getElementById('resultView');
+  rv.classList.add('show');
+  document.getElementById('resultImage').src = imageUrl;
+  document.getElementById('resultName').textContent = product.name;
+  document.getElementById('resultShopLink').href = product.url;
+}
+
+function backToMain() {
+  document.getElementById('resultView').classList.remove('show');
+  document.getElementById('mainView').classList.remove('hidden');
+}
+
+init();
+</script>
+
+</body>
+</html>
