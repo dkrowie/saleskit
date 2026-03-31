@@ -350,6 +350,14 @@
     </div>
   </div>
 
+  <div class="card no-print">
+    <h2>Display Options</h2>
+    <div class="toggle-row">
+      <div class="toggle active" id="savingsToggle" onclick="this.classList.toggle('active'); toggleSavings()"></div>
+      <label onclick="document.getElementById('savingsToggle').classList.toggle('active'); toggleSavings()">Show Monthly Savings section</label>
+    </div>
+  </div>
+
   <div class="card results" id="resultsCard">
     <h2>Return on Investment</h2>
     <div class="result-grid">
@@ -367,7 +375,7 @@
         <div class="result-value" id="blendCost">-</div>
         <div class="result-sub" id="blendSub"></div>
       </div>
-      <div class="result-item highlight">
+      <div class="result-item highlight savings-section">
         <div class="result-label">Monthly Savings with Blend vs. Current Solution</div>
         <div class="result-value green" id="monthlySavings">-</div>
         <div class="result-sub" id="savingsPct"></div>
@@ -382,7 +390,7 @@
       <div class="breakdown-row"><span class="label"><strong>Total Blend cost</strong></span><span class="value" id="bTotal">-</span></div>
     </div>
 
-    <div class="savings-row" id="customSavingsRow" style="display:none;">
+    <div class="savings-row savings-section" id="customSavingsRow" style="display:none;">
       <div style="display:flex; justify-content:space-between; padding:6px 0; font-size:13px; border-bottom:1px solid rgba(255,255,255,0.1);">
         <span style="color:#a1a1aa;">Standard Blend Fees</span>
         <span style="color:#a1a1aa;" id="standardCostRef">-</span>
@@ -398,7 +406,7 @@
       </div>
     </div>
 
-    <div class="annual-hero" id="annualHero">
+    <div class="annual-hero savings-section" id="annualHero">
       <div style="text-align:center;">
         <div style="font-size:11px; color:#818cf8; text-transform:uppercase; letter-spacing:1px; margin-bottom:6px;">Projected Annual Savings</div>
         <div style="font-size:42px; font-weight:800; color:#fff; line-height:1;" id="annualSavings">-</div>
@@ -545,6 +553,11 @@ function removeLogo() {
     if (file && file.type.match(/image.*/)) loadLogoFile(file);
   });
 })();
+
+function toggleSavings() {
+  const on = document.getElementById('savingsToggle').classList.contains('active');
+  document.querySelectorAll('.savings-section').forEach(el => el.style.display = on ? '' : 'none');
+}
 
 function toggleRoas() {
   const on = document.getElementById('roasToggle').classList.contains('active');
