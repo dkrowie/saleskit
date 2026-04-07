@@ -299,6 +299,7 @@
         <option value="flat">Flat monthly retainer</option>
         <option value="both">Retainer + percentage</option>
         <option value="none">No agency (managing in-house)</option>
+        <option value="unknown">Don't model / unknown current cost</option>
       </select>
     </div>
     <div class="row" id="agencyFields">
@@ -375,7 +376,7 @@
         <div class="result-value" id="blendCost">-</div>
         <div class="result-sub" id="blendSub"></div>
       </div>
-      <div class="result-item highlight savings-section">
+      <div class="result-item highlight savings-section" id="monthlySavingsCard">
         <div class="result-label">Monthly Savings with Blend vs. Current Solution</div>
         <div class="result-value green" id="monthlySavings">-</div>
         <div class="result-sub" id="savingsPct"></div>
@@ -557,6 +558,7 @@ function removeLogo() {
 function toggleSavings() {
   const on = document.getElementById('savingsToggle').classList.contains('active');
   document.querySelectorAll('.savings-section').forEach(el => el.style.display = on ? '' : 'none');
+  calc();
 }
 
 function toggleRoas() {
@@ -574,9 +576,14 @@ function toggleCustomRates() {
 
 function toggleAgency() {
   const m = document.getElementById('agencyModel').value;
-  document.getElementById('agencyPctField').style.display = (m === 'flat' || m === 'none') ? 'none' : '';
-  document.getElementById('agencyFlatField').style.display = (m === 'percent' || m === 'none') ? 'none' : '';
-  document.getElementById('agencyFields').style.display = m === 'none' ? 'none' : '';
+  const unknown = (m === 'unknown');
+  document.getElementById('agencyPctField').style.display = (m === 'flat' || m === 'none' || unknown) ? 'none' : '';
+  document.getElementById('agencyFlatField').style.display = (m === 'percent' || m === 'none' || unknown) ? 'none' : '';
+  document.getElementById('agencyFields').style.display = (m === 'none' || unknown) ? 'none' : '';
+  document.getElementById('inHouseRow').style.display = unknown ? 'none' : '';
+  if (unknown) {
+    document.getElementById('inHouseField').style.display = 'none';
+  }
 }
 
 function calc() {
@@ -586,7 +593,7 @@ function calc() {
   const model = document.getElementById('agencyModel').value;
   const pct = parseFloat(document.getElementById('agencyPct').value) || 0;
   const flat = parseFloat(document.getElementById('agencyFlat').value) || 0;
-  const inHouseOn = document.getElementById('inHouseToggle').classList.contains('active');
+  const inHouseOn = document.getElementById('inHouseToggle').classList.contains('active') && model !== 'unknown';
   const inHouse = inHouseOn ? (parseFloat(document.getElementById('inHouseCost').value) || 0) : 0;
 
   document.getElementById('inHouseField').style.display = inHouseOn ? '' : 'none';
@@ -595,7 +602,8 @@ function calc() {
   if (model === 'percent') agencyCost = spend * (pct / 100);
   else if (model === 'flat') agencyCost = flat;
   else if (model === 'both') agencyCost = flat + spend * (pct / 100);
-  const currentTotal = agencyCost + inHouse;
+  const currentModeled = model !== 'unknown';
+  const currentTotal = currentModeled ? (agencyCost + inHouse) : 0;
 
   const standardPlatformFee = 150 * platformFeeRates[cur];
   const customOn = document.getElementById('customRatesToggle').classList.contains('active');
@@ -622,9 +630,9 @@ function calc() {
   const savingsPercent = currentTotal > 0 ? (savings / currentTotal * 100) : 0;
 
   document.getElementById('resultAdSpend').textContent = fmt(Math.round(spend), cur);
-  document.getElementById('currentCost').textContent = fmt(Math.round(currentTotal), cur);
+  document.getElementById('currentCost').textContent = currentModeled ? fmt(Math.round(currentTotal), cur) : '-';
   document.getElementById('currentCost').className = 'result-value';
-  document.getElementById('currentSub').textContent = model === 'none' ? 'In-house only' : (agencyCost > 0 ? 'Agency: ' + fmt(Math.round(agencyCost), cur) + (inHouse > 0 ? ' + In-house: ' + fmt(Math.round(inHouse), cur) : '') : '');
+  document.getElementById('currentSub').textContent = !currentModeled ? 'Current solution not modeled' : (model === 'none' ? 'In-house only' : (agencyCost > 0 ? 'Agency: ' + fmt(Math.round(agencyCost), cur) + (inHouse > 0 ? ' + In-house: ' + fmt(Math.round(inHouse), cur) : '') : ''));
   document.getElementById('blendCost').textContent = fmt(Math.round(blendTotal), cur);
   document.getElementById('blendSub').textContent = customOn ? 'Custom rates applied' : 'Platform fee + tiered %';
   
@@ -635,6 +643,10 @@ function calc() {
   } else {
     noteEl.textContent = 'Blend pricing: $150 USD/mo platform fee + tiered % of ad spend (10% on first $15k, 7% on $15-50k, 2% on $50k+). Month-to-month, no contracts.';
   }
+  const savingsVisible = document.getElementById('savingsToggle').classList.contains('active') && currentModeled;
+  document.getElementById('monthlySavingsCard').style.display = savingsVisible ? '' : 'none';
+  document.getElementById('annualHero').style.display = savingsVisible ? '' : 'none';
+
   document.getElementById('monthlySavings').textContent = fmt(Math.round(savings), cur);
   document.getElementById('monthlySavings').className = 'result-value ' + (savings >= 0 ? 'green' : 'red');
   document.getElementById('savingsPct').textContent = savings >= 0 ? Math.round(savingsPercent) + '% less than current solution' : 'Blend costs more at this spend/fee level';
@@ -695,14 +707,15 @@ function calc() {
   if (roasOn) {
     const roas = parseFloat(document.getElementById('currentRoas').value) || 0;
     const upliftRevenue = spend * roas * 0.1;
-    const totalImpact = Math.max(savings, 0) + upliftRevenue;
+    const comparableSavings = currentModeled ? Math.max(savings, 0) : 0;
+    const totalImpact = comparableSavings + upliftRevenue;
 
-    document.getElementById('impactSavings').textContent = savings >= 0 ? '+' + fmt(Math.round(savings), cur) : fmt(0, cur);
+    document.getElementById('impactSavings').textContent = comparableSavings > 0 ? '+' + fmt(Math.round(comparableSavings), cur) : fmt(0, cur);
     document.getElementById('impactUplift').textContent = roas > 0 ? '+' + fmt(Math.round(upliftRevenue), cur) : '-';
     document.getElementById('impactTotal').textContent = '+' + fmt(Math.round(totalImpact), cur) + '/mo';
     document.getElementById('impactAnnual').textContent = '+' + fmt(Math.round(totalImpact * 12), cur) + '/yr';
 
-    document.getElementById('impBdSavings').textContent = savings >= 0 ? '+' + fmt(Math.round(savings), cur) : fmt(0, cur);
+    document.getElementById('impBdSavings').textContent = comparableSavings > 0 ? '+' + fmt(Math.round(comparableSavings), cur) : fmt(0, cur);
     document.getElementById('impBdUplift').textContent = roas > 0 ? '+' + fmt(Math.round(upliftRevenue), cur) : '-';
     document.getElementById('impBdTotal').textContent = '+' + fmt(Math.round(totalImpact), cur);
   }
