@@ -717,7 +717,10 @@ function updateClientName() {
 function printPDF() {
   const name = document.getElementById('clientName').value.trim();
   const partnerOn = document.getElementById('partnerToggle').classList.contains('active');
+  const customOn = document.getElementById('customRatesToggle').classList.contains('active');
   const printHeader = document.getElementById('printHeader');
+  const customSavingsRow = document.getElementById('customSavingsRow');
+  const originalCustomRowDisplay = customSavingsRow.style.display;
   
   if (partnerOn && partnerLogoData) {
     printHeader.innerHTML = `
@@ -734,11 +737,16 @@ function printPDF() {
       </div>`;
 
   }
+
+  if (customOn) {
+    customSavingsRow.style.display = '';
+  }
   
   const origTitle = document.title;
   document.title = name ? 'Blend AI - ROI - ' + name : 'Blend AI - Return on Investment';
   window.print();
   document.title = origTitle;
+  customSavingsRow.style.display = originalCustomRowDisplay;
 }
 
 toggleAgency();
